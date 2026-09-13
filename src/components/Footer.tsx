@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
@@ -5,9 +6,13 @@ export default function Footer() {
     <footer className="border-t border-[var(--gold)]/25 mt-20">
       <div className="mx-auto max-w-6xl px-5 py-10 grid gap-8 sm:grid-cols-3 text-sm">
         <div>
-          <p className="font-heading text-[var(--gold-bright)] tracking-wide mb-2">
-            Russell&#8211;Sharp Family Reunion
-          </p>
+          <Image
+            src="/images/logo-light.png"
+            alt="Russell–Sharp Family"
+            width={180}
+            height={120}
+            className="h-12 w-auto mb-3"
+          />
           <p className="text-[var(--pearl-dim)]">
             September 3&#8211;5, 2027<br />Atlanta, Georgia
           </p>

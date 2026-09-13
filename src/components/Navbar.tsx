@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -44,11 +45,15 @@ export default function Navbar() {
     <>
       <header className="sticky top-0 z-40 bg-[var(--ink)]/95 backdrop-blur border-b border-[var(--gold)]/30">
         <div className="mx-auto max-w-6xl px-5 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-            <span className="deco-diamond" />
-            <span className="font-heading tracking-[0.12em] text-[var(--gold-bright)] text-sm sm:text-base">
-              RUSSELL&nbsp;&#8211;&nbsp;SHARP
-            </span>
+          <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
+            <Image
+              src="/images/logo-light.png"
+              alt="Russell–Sharp Family"
+              width={220}
+              height={147}
+              priority
+              className="h-9 sm:h-10 w-auto"
+            />
           </Link>
 
           <button
