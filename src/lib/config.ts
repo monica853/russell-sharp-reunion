@@ -24,8 +24,8 @@ export const FROM_EMAIL = "updates@russellsharpfamily.com";
 // without needing to check the Google Sheet themselves. Add or remove
 // emails here any time.
 export const ALERT_CC_EMAILS: string[] = [
-  // "monica@example.com",
-  // "another-organizer@example.com",
+  "monicalrussell@gmail.com",
+  "shaw0033@gmail.com",
 ];
 
 export const HOTEL = {
