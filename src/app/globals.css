@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -11,6 +11,11 @@
   --pearl: #f3e9d2;
   --pearl-dim: #d9cbaa;
   --leaf: #3b4a3a;
+
+  /* Brand red, pulled directly from the family logo */
+  --accent: #d2080a;
+  --accent-bright: #ef2a2c;
+  --accent-dark: #8f0507;
 
   --font-display: 'Cinzel Decorative', serif;
   --font-heading: 'Cinzel', serif;
@@ -123,4 +128,56 @@ body {
 
 input, select, textarea {
   font-family: var(--font-body);
+}
+
+/* ── Clean, modern components for the hero/nav (deliberately un-ornamented,
+   distinct from the deco-* classes used elsewhere on the site) ── */
+
+.tag-label {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--accent-bright);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 0.15rem 0.55rem;
+}
+
+.btn-primary {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  padding: 0.85rem 1.75rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--accent-bright);
+  transform: translateY(-1px);
+}
+
+.btn-outline-clean {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--pearl);
+  background: transparent;
+  border: 1px solid rgba(243, 233, 210, 0.35);
+  padding: 0.85rem 1.75rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.btn-outline-clean:hover {
+  border-color: var(--pearl);
+  background: rgba(243, 233, 210, 0.06);
 }

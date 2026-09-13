@@ -14,7 +14,7 @@ function getParts(target: number) {
   };
 }
 
-export default function Countdown() {
+export default function Countdown({ variant = "plaque" }: { variant?: "plaque" | "minimal" }) {
   const target = new Date(REUNION_DATE).getTime();
   const [parts, setParts] = useState(() => getParts(target));
 
@@ -29,6 +29,23 @@ export default function Countdown() {
     ["Minutes", parts.minutes],
     ["Seconds", parts.seconds],
   ];
+
+  if (variant === "minimal") {
+    return (
+      <div className="flex flex-wrap gap-4 sm:gap-5">
+        {units.map(([label, value]) => (
+          <div key={label} className="text-center">
+            <div className="font-black text-2xl sm:text-3xl text-white tabular-nums">
+              {String(value).padStart(2, "0")}
+            </div>
+            <div className="text-[10px] tracking-[0.1em] text-[var(--pearl-dim)] mt-0.5">
+              {label.toUpperCase()}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center gap-3 sm:gap-5">
