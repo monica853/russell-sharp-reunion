@@ -55,7 +55,7 @@ Description: ${description || "—"}`;
 
     const cc = alertCcList();
     if (submitterEmail) {
-      sendEmail({
+      await sendEmail({
         to: submitterEmail,
         cc,
         subject: `Event submitted for review: ${eventName}`,
@@ -71,7 +71,7 @@ It's been sent to the family for review and will appear on russellsharpfamily.co
       });
     } else if (cc.length) {
       // No submitter email on file — still make sure organizers see it.
-      sendEmail({
+      await sendEmail({
         to: cc[0],
         cc: cc.slice(1),
         subject: `New event awaiting review: ${eventName}`,

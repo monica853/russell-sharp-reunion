@@ -13,23 +13,7 @@ export async function POST(req: NextRequest) {
     await appendRow(CONTACT_TAB, [new Date().toISOString(), name, email, message]);
 
     const recipients = alertCcList();
-    if (recipients.length) {
-      sendEmail({
-        to: recipients[0],
-        cc: recipients.slice(1),
-        subject: `New contact message from ${name}`,
-        text: `From: ${name} <${email}>\n\n${message}`,
-      });
-    } else {
-      // No CC list configured yet — send to the site's own address as a fallback so the message isn't only sitting in the sheet.
-      sendEmail({ to: FROM_EMAIL, subject: `New contact message from ${name}`, text: `From: ${name} <${email}>\n\n${message}` });
-    }
-
-    // Confirm back to whoever sent the message, so they know it went through.
-    sendEmail({
-      to: email,
-      subject: "We got your message — Russell–Sharp Family Reunion",
-      text: `Hi ${name},
+    const confirmationText = `Hi ${name},
 
 Thanks for reaching out! Here's a copy of what you sent us:
 
@@ -37,8 +21,25 @@ Thanks for reaching out! Here's a copy of what you sent us:
 
 We'll get back to you soon.
 
-— Russell–Sharp Family Reunion`,
-    });
+— Russell–Sharp Family Reunion`;
+
+    await Promise.all([
+      recipients.length
+        ? sendEmail({
+            to: recipients[0],
+            cc: recipients.slice(1),
+            subject: `New contact message from ${name}`,
+            text: `From: ${name} <${email}>\n\n${message}`,
+          })
+        : // No CC list configured yet — send to the site's own address as a fallback so the message isn't only sitting in the sheet.
+          sendEmail({ to: FROM_EMAIL, subject: `New contact message from ${name}`, text: `From: ${name} <${email}>\n\n${message}` }),
+      // Confirm back to whoever sent the message, so they know it went through.
+      sendEmail({
+        to: email,
+        subject: "We got your message — Russell–Sharp Family Reunion",
+        text: confirmationText,
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (err) {

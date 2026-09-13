@@ -37,7 +37,7 @@ Description: ${description || "—"}`;
 
     const cc = alertCcList();
     if (email) {
-      sendEmail({
+      await sendEmail({
         to: email,
         cc,
         subject: `Submitted for review: ${businessName}`,
@@ -52,7 +52,7 @@ It's been sent to the family for review and will appear on russellsharpfamily.co
 — Russell–Sharp Family Reunion`,
       });
     } else if (cc.length) {
-      sendEmail({
+      await sendEmail({
         to: cc[0],
         cc: cc.slice(1),
         subject: `New connection awaiting review: ${businessName}`,

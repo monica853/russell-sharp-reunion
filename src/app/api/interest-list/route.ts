@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       })
       .join("\n");
 
-    sendEmail({
+    await sendEmail({
       to: email,
       cc: alertCcList(),
       subject: "You're on the list! — Russell–Sharp Family Reunion",
