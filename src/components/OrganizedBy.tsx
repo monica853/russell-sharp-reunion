@@ -18,7 +18,9 @@ const ORGANIZERS: Organizer[] = [
   { name: "Linda Brooks", role: "Co-Chair", photo: "/images/organizers/linda-brooks.jpg" },
   { name: "Brittney Sharp", role: "Decorations & Theme", photo: "/images/organizers/brittney-sharp.jpg" },
   { name: "Venita Davis", role: "Family Memorabilia Coordinator", photo: "/images/organizers/venita-davis.jpg" },
-  { name: "Nia, Tori & Hollis", role: "Events & Activities", photo: "/images/organizers/nia-tori-hollis.jpg" },
+  { name: "Nia Parker", role: "Events & Activities", photo: "/images/organizers/nia-parker.jpg" },
+  { name: "Tori Shaw", role: "Events & Activities", photo: "/images/organizers/tori-shaw.jpg" },
+  { name: "Hollis Smith", role: "Events & Activities", photo: "/images/organizers/hollis-smith.jpg" },
   { name: "Madison Jefferson", role: "Youth & Family Fun", photo: "/images/organizers/madison-jefferson.jpg" },
   { name: "Janeka Mearon", role: "Hotel & Hospitality", photo: "/images/organizers/janeka-mearon.jpg" },
   { name: "David Brown", role: "Birmingham Team Coordinator", photo: "/images/organizers/david-brown.jpg" },
@@ -30,19 +32,19 @@ const ORGANIZERS: Organizer[] = [
 
 function OrganizerCard({ organizer }: { organizer: Organizer }) {
   const content = (
-    <div className="flex flex-col items-center gap-3 text-center w-32">
+    <div className="flex flex-col items-center gap-2 text-center w-20">
       {organizer.photo ? (
-        <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-[var(--gold)]">
-          <Image src={organizer.photo} alt={organizer.name} width={96} height={96} className="w-full h-full object-cover" />
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--gold)]">
+          <Image src={organizer.photo} alt={organizer.name} width={64} height={64} className="w-full h-full object-cover" />
         </div>
       ) : (
-        <div className="w-24 h-24 rounded-full border-[3px] border-dashed border-[var(--gold-dark)] flex items-center justify-center">
-          <User className="w-8 h-8 text-[var(--muted)]" strokeWidth={1.5} />
+        <div className="w-16 h-16 rounded-full border-2 border-dashed border-[var(--gold-dark)] flex items-center justify-center">
+          <User className="w-6 h-6 text-[var(--muted)]" strokeWidth={1.5} />
         </div>
       )}
       <div>
-        <p className="text-base font-semibold text-[var(--pearl)] leading-tight">{organizer.name}</p>
-        <p className="text-sm text-[var(--muted)] leading-tight">{organizer.role}</p>
+        <p className="text-xs font-semibold text-[var(--pearl)] leading-tight">{organizer.name}</p>
+        <p className="text-[10px] text-[var(--muted)] leading-tight">{organizer.role}</p>
       </div>
     </div>
   );
@@ -64,7 +66,7 @@ export default function OrganizedBy() {
         <p className="text-center text-xs tracking-[0.2em] text-[var(--gold)] font-semibold mb-8">
           ORGANIZED BY
         </p>
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-8">
+        <div className="flex flex-wrap justify-center gap-x-5 gap-y-6">
           {ORGANIZERS.map((o, i) => (
             <OrganizerCard key={i} organizer={o} />
           ))}
