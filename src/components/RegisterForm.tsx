@@ -16,7 +16,7 @@ const AGE_GROUPS = Object.keys(RATES);
 const SHIRT_SIZES = ["Youth S", "Youth M", "Youth L", "Adult S", "Adult M", "Adult L", "Adult XL", "Adult 2XL", "Adult 3XL"];
 
 const inputClass =
-  "w-full bg-transparent border border-[var(--gold)]/40 focus:border-[var(--gold)] focus:outline-none px-3 py-2 text-[var(--pearl)] placeholder:text-[var(--pearl-dim)]/50";
+  "w-full bg-transparent border border-[var(--gold-dark)] focus:border-[var(--gold)] focus:outline-none px-3 py-2 text-[var(--pearl)] placeholder:text-[var(--muted)]";
 const labelClass = "block text-xs tracking-wide text-[var(--pearl-dim)] mb-1 font-heading";
 
 function emptyAttendee(): Attendee {

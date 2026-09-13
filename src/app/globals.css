@@ -2,23 +2,28 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #0d0b0a;
-  --ink-soft: #171310;
-  --pearl: #f3e9d2;
-  --pearl-dim: #e4d9c2;
+  --ink: #080808;
+  --ink-soft: #14110e;
+  --pearl: #f7f1e7;
+  --pearl-dim: #ddd3c4;
+  --muted: #8f887e;
 
-  /* Brand red, pulled directly from the family logo — this is the site's
-     one accent color, used everywhere the old gold/deco system used to be. */
-  --accent: #d2080a;
-  --accent-bright: #ef2a2c;
-  --accent-dark: #8f0507;
+  /* Gold — reserved for labels, accent lines, and borders. Never used for
+     large blocks of text or backgrounds. */
+  --gold: #c9a45c;
+  --gold-dark: #6f572d;
 
-  /* Kept as aliases so every existing component (buttons, cards, dividers)
-     that referenced "gold" now renders in the new brand red automatically. */
-  --gold: var(--accent);
-  --gold-bright: var(--accent-bright);
-  --oxblood: var(--accent-dark);
-  --oxblood-deep: #5c0304;
+  /* Red — reserved strictly for buttons and the logo. Not used for
+     headings, labels, or decorative accents elsewhere. */
+  --accent: #b5161e;
+  --accent-bright: #d01c26;
+  --accent-dark: #7a0f14;
+
+  /* Kept as aliases so existing components (error text, "remove" links,
+     old heading classes) resolve to the right color from the new palette. */
+  --gold-bright: var(--pearl);
+  --oxblood: var(--accent);
+  --oxblood-deep: var(--ink-soft);
 
   --font-display: 'Poppins', sans-serif;
   --font-heading: 'Poppins', sans-serif;
@@ -64,13 +69,13 @@ body {
 
 .deco-rule {
   height: 1px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--gold-dark);
 }
 
 .deco-diamond {
   width: 7px;
   height: 7px;
-  background: var(--accent);
+  background: var(--gold);
   border-radius: 999px;
   display: inline-block;
 }
@@ -79,7 +84,8 @@ body {
 .chevron-divider {
   width: 100%;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--gold-dark);
+  opacity: 0.5;
 }
 
 .btn-deco,
@@ -126,8 +132,8 @@ body {
 }
 
 .card-plaque {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(201, 164, 92, 0.04);
+  border: 1px solid rgba(111, 87, 45, 0.45);
   border-radius: 10px;
 }
 
@@ -141,8 +147,8 @@ input, select, textarea {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: var(--accent-bright);
-  border: 1.5px solid var(--accent);
+  color: var(--gold);
+  border: 1.5px solid var(--gold);
   border-radius: 4px;
   padding: 0.2rem 0.6rem;
 }

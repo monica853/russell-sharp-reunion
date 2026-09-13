@@ -41,7 +41,7 @@ function SectionGrid({ items }: { items: SectionLink[] }) {
         const Icon = s.icon;
         return (
           <Link key={s.href} href={s.href} className="group flex items-start gap-4 py-3">
-            <Icon className="w-5 h-5 mt-1 text-[var(--accent-bright)] shrink-0" strokeWidth={1.5} />
+            <Icon className="w-5 h-5 mt-1 text-[var(--gold)] shrink-0" strokeWidth={1.5} />
             <div>
               <p className="font-semibold text-[var(--pearl)] group-hover:text-white transition-colors">
                 {s.title}
@@ -59,7 +59,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero — Atlanta skyline stays fixed behind the content as it scrolls */}
-      <section className="relative min-h-[85vh] sm:min-h-screen bg-[url('/images/atlanta-skyline.png')] bg-cover bg-center bg-fixed flex flex-col justify-center overflow-hidden">
+      <section className="relative min-h-[85vh] sm:min-h-screen bg-[url('/images/atlanta-skyline.png')] bg-cover bg-right sm:bg-center bg-fixed flex flex-col justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[var(--ink)] via-[var(--ink)]/85 to-[var(--ink)]/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)] via-transparent to-[var(--ink)]/30" />
 
@@ -88,7 +88,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="min-w-0 bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-wrap lg:flex-nowrap lg:flex-col gap-x-10 gap-y-7 lg:gap-8 lg:items-end lg:text-right">
+          <div className="min-w-0 bg-black/50 backdrop-blur-sm border border-[var(--gold-dark)]/40 rounded-2xl p-6 sm:p-8 flex flex-wrap lg:flex-nowrap lg:flex-col gap-x-10 gap-y-7 lg:gap-8 lg:items-end lg:text-right">
             <div>
               <span className="tag-label">WHEN</span>
               <p className="text-2xl sm:text-3xl font-bold text-white mt-2">Sept 3&#8211;5</p>
@@ -112,7 +112,7 @@ export default function Home() {
 
       {/* Save the Date artwork */}
       <section className="mx-auto max-w-5xl px-5 py-20 grid md:grid-cols-2 gap-10 items-center">
-        <div className="border border-white/10 rounded-lg overflow-hidden">
+        <div className="border border-[var(--gold-dark)]/40 rounded-lg overflow-hidden">
           <Image
             src="/images/save-the-date.png"
             alt="Save the Date — Russell–Sharp Family Reunion, Atlanta, Georgia, September 3–5, 2027"
@@ -136,7 +136,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="h-px bg-white/10 max-w-5xl mx-auto" />
+      <div className="h-px bg-[var(--gold-dark)]/40 max-w-5xl mx-auto" />
 
       {/* Section overview */}
       <section className="mx-auto max-w-3xl px-5 py-20">
@@ -149,18 +149,18 @@ export default function Home() {
 
         <div className="space-y-10">
           <div>
-            <p className="text-xs tracking-[0.15em] text-[var(--accent-bright)] font-semibold mb-4">REUNION 2027</p>
+            <p className="text-xs tracking-[0.15em] text-[var(--gold)] font-semibold mb-4">REUNION 2027</p>
             <SectionGrid items={REUNION_SECTIONS} />
           </div>
-          <div className="h-px bg-white/10" />
+          <div className="h-px bg-[var(--gold-dark)]/40" />
           <div>
-            <p className="text-xs tracking-[0.15em] text-[var(--accent-bright)] font-semibold mb-4">FAMILY</p>
+            <p className="text-xs tracking-[0.15em] text-[var(--gold)] font-semibold mb-4">FAMILY</p>
             <SectionGrid items={FAMILY_SECTIONS} />
           </div>
         </div>
       </section>
 
-      <div className="h-px bg-white/10 max-w-3xl mx-auto" />
+      <div className="h-px bg-[var(--gold-dark)]/40 max-w-3xl mx-auto" />
 
       {/* Timeline preview */}
       <section className="mx-auto max-w-3xl px-5 py-20">
@@ -171,11 +171,11 @@ export default function Home() {
           {TIMELINE.map((t, i) => (
             <li key={i} className="flex gap-4">
               <div className="flex flex-col items-center pt-1">
-                <span className="w-3 h-3 rounded-full bg-[var(--accent)] mt-1" />
-                {i < TIMELINE.length - 1 && <span className="w-px flex-1 bg-white/15 mt-2" />}
+                <span className="w-3 h-3 rounded-full bg-[var(--gold)] mt-1" />
+                {i < TIMELINE.length - 1 && <span className="w-px flex-1 bg-[var(--gold-dark)]/40 mt-2" />}
               </div>
               <div className="pb-2">
-                <p className="text-sm tracking-wide text-[var(--accent-bright)] font-bold">{t.when}</p>
+                <p className="text-sm tracking-wide text-[var(--gold)] font-bold">{t.when}</p>
                 <p className="font-semibold text-lg text-[var(--pearl)] mt-1">{t.title}</p>
                 <p className="text-base text-[var(--pearl-dim)] mt-1">{t.body}</p>
               </div>

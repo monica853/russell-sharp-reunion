@@ -138,7 +138,7 @@ export default function Navbar() {
 
           {DRAWER_GROUPS.map((group) => (
             <div key={group.label}>
-              <p className="text-xs tracking-[0.15em] text-[var(--accent-bright)] font-semibold mb-3">
+              <p className="text-xs tracking-[0.15em] text-[var(--gold)] font-semibold mb-3">
                 {group.label.toUpperCase()}
               </p>
               <div className="flex flex-col gap-3 pl-1">

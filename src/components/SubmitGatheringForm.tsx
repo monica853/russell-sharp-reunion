@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 const inputClass =
-  "w-full bg-transparent border border-[var(--gold)]/40 focus:border-[var(--gold)] focus:outline-none px-3 py-2 text-[var(--pearl)] placeholder:text-[var(--pearl-dim)]/50";
+  "w-full bg-transparent border border-[var(--gold-dark)] focus:border-[var(--gold)] focus:outline-none px-3 py-2 text-[var(--pearl)] placeholder:text-[var(--muted)]";
 const labelClass = "block text-xs tracking-wide text-[var(--pearl-dim)] mb-1 font-heading";
 
 export default function SubmitGatheringForm() {

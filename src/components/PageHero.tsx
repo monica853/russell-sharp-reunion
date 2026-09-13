@@ -8,7 +8,7 @@ export default function PageHero({
   subtitle?: string;
 }) {
   return (
-    <section className="relative border-b border-[var(--gold)]/25 bg-gradient-to-b from-[var(--oxblood-deep)]/30 to-transparent">
+    <section className="relative border-b border-[var(--gold)]/25 bg-[var(--ink-soft)]">
       <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20 text-center">
         {eyebrow && (
           <p className="font-heading text-[var(--gold)] text-xs tracking-[0.25em] mb-3">
