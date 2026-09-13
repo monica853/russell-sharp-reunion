@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Countdown from "@/components/Countdown";
+import OrganizedBy from "@/components/OrganizedBy";
 import { TIMELINE } from "@/lib/timeline";
 
 type SectionLink = { href: string; title: string; body: string; icon: LucideIcon };
@@ -118,6 +119,8 @@ export default function Home() {
           2027
         </div>
       </section>
+
+      <OrganizedBy />
 
       {/* Save the Date artwork */}
       <section className="mx-auto max-w-5xl px-5 py-20 grid md:grid-cols-2 gap-10 items-center">
