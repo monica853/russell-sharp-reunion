@@ -1,6 +1,11 @@
 import PageHero from "@/components/PageHero";
 import { HOTEL } from "@/lib/config";
 
+export const metadata = {
+  title: "Hotel & Travel | Russell–Sharp Reunion 2027",
+  description: "Where to stay and how to get there for the Russell–Sharp Family Reunion in Atlanta, Georgia.",
+};
+
 const PLANNED_DETAILS = [
   "Family reunion group rate",
   "Reservation deadline",

@@ -1,11 +1,16 @@
 import PageHero from "@/components/PageHero";
 import InterestForm from "@/components/InterestForm";
 
+export const metadata = {
+  title: "Join the Interest List | Russell–Sharp Family",
+  description: "Help us plan lodging, activities, and reunion apparel by joining the Russell–Sharp Family Reunion interest list.",
+};
+
 export default function InterestListPage() {
   return (
     <div>
       <PageHero
-        eyebrow="Phase 1 · September – December 2026"
+        eyebrow="Phase 1 · September – November 2026"
         title="Join the Interest List"
         subtitle="Help us plan lodging, activities, transportation, meals, and reunion apparel."
       />

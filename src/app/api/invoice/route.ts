@@ -1,19 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSheetValues } from "@/lib/googleSheets";
 import { verifySession, SESSION_COOKIE } from "@/lib/auth";
-import { REG_TAB } from "@/lib/sheetsSchema";
-
-// Column indices in the Registrations tab (0-indexed, matches /api/register)
-const COL_NAME = 1;
-const COL_EMAIL = 2;
-const COL_FAMILY_BRANCH = 4;
-const COL_ATTENDEES_JSON = 8;
-const COL_LODGING = 9;
-const COL_TOTAL_OWED = 13;
-const COL_AMOUNT_PAID = 14;
-const COL_NOTES = 15;
-
-type Attendee = { name?: string; ageGroup?: string; tshirtSize?: string };
+import { REG_TAB, REG_COLS } from "@/lib/sheetsSchema";
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,30 +13,38 @@ export async function GET(req: NextRequest) {
 
     const rows = await getSheetValues(REG_TAB);
     const target = session.householdId.trim().toLowerCase();
-    const row = rows.find((r, i) => i > 0 && String(r[COL_EMAIL] ?? "").trim().toLowerCase() === target);
-    if (!row) {
+
+    const householdRows = rows
+      .slice(1)
+      .filter((r) => String(r[REG_COLS.householdEmail] ?? "").trim().toLowerCase() === target);
+
+    if (householdRows.length === 0) {
       return NextResponse.json({ error: "We couldn't find your registration." }, { status: 404 });
     }
 
-    let attendees: Attendee[] = [];
-    try {
-      attendees = JSON.parse(String(row[COL_ATTENDEES_JSON] ?? "[]"));
-    } catch {
-      attendees = [];
-    }
+    const primaryRow =
+      householdRows.find((r) => String(r[REG_COLS.isPrimary] ?? "").trim().toUpperCase() === "TRUE") ??
+      householdRows[0];
 
-    const totalOwed = Number(row[COL_TOTAL_OWED] ?? 0);
-    const amountPaid = Number(row[COL_AMOUNT_PAID] ?? 0);
+    const attendees = householdRows
+      .filter((r) => String(r[REG_COLS.attendeeName] ?? "").trim())
+      .map((r) => ({
+        name: String(r[REG_COLS.attendeeName] ?? ""),
+        ageGroup: String(r[REG_COLS.ageGroup] ?? ""),
+        tshirtSize: String(r[REG_COLS.tshirtSize] ?? ""),
+      }));
+
+    const totalOwed = Number(primaryRow[REG_COLS.totalOwed] ?? 0);
+    const amountPaid = Number(primaryRow[REG_COLS.amountPaid] ?? 0);
 
     return NextResponse.json({
-      name: String(row[COL_NAME] ?? ""),
-      familyBranch: String(row[COL_FAMILY_BRANCH] ?? ""),
-      lodging: String(row[COL_LODGING] ?? ""),
+      name: String(primaryRow[REG_COLS.primaryName] ?? ""),
+      lodging: String(primaryRow[REG_COLS.lodgingSelection] ?? ""),
       attendees,
       totalOwed,
       amountPaid,
       balance: Math.max(0, totalOwed - amountPaid),
-      notes: String(row[COL_NOTES] ?? ""),
+      notes: String(primaryRow[REG_COLS.notes] ?? ""),
     });
   } catch (err) {
     console.error("Invoice fetch error:", err);

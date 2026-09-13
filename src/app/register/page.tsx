@@ -4,6 +4,11 @@ import RegisterForm from "@/components/RegisterForm";
 import { CURRENT_PHASE } from "@/lib/config";
 import { REGISTRATION_RATES } from "@/lib/timeline";
 
+export const metadata = {
+  title: "Register Your Household | Russell–Sharp Reunion 2027",
+  description: "Registration fees, deposit information, and deadlines for the Russell–Sharp Family Reunion.",
+};
+
 export default function RegisterPage() {
   const isOpen = CURRENT_PHASE >= 2;
 

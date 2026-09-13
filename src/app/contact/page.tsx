@@ -1,6 +1,11 @@
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
 
+export const metadata = {
+  title: "Contact | Russell–Sharp Family",
+  description: "Get in touch with the Russell–Sharp Family Reunion organizers.",
+};
+
 export default function ContactPage() {
   return (
     <div>

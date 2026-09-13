@@ -21,7 +21,7 @@ type SectionLink = { href: string; title: string; body: string; icon: LucideIcon
 const REUNION_SECTIONS: SectionLink[] = [
   { href: "/reunion-details", title: "Reunion Details", body: "September 3–5, 2027 · Atlanta", icon: CalendarHeart },
   { href: "/interest-list", title: "Interest List", body: "Tell us you're planning to come", icon: ClipboardList },
-  { href: "/register", title: "Register", body: "Reserve your household's place", icon: UserPlus },
+  { href: "/register", title: "Registration Opens December 2026", body: "View fees, deposit information, and important deadlines.", icon: UserPlus },
   { href: "/payments", title: "Registration Timeline", body: "Deposit, balances, and due dates", icon: Wallet },
   { href: "/hotel-travel", title: "Lodging", body: "Where to stay and how to get there", icon: BedDouble },
   { href: "/schedule", title: "Schedule", body: "Activities as plans are confirmed", icon: CalendarClock },

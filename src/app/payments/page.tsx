@@ -2,6 +2,11 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import { TIMELINE, REGISTRATION_RATES } from "@/lib/timeline";
 
+export const metadata = {
+  title: "Registration Timeline | Russell–Sharp Reunion 2027",
+  description: "The full planning timeline, registration fees, and payment deadlines for the Russell–Sharp Family Reunion.",
+};
+
 export default function PaymentsPage() {
   return (
     <div>

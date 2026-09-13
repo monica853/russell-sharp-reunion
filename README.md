@@ -29,11 +29,11 @@ This is the only setup required to make the site fully functional. It takes abou
    - `Contact Messages`
 3. Add a header row to each tab (row 1) — this is just for your own reference; the code writes by column position, not by header name, so exact header wording doesn't matter, but the **order** of columns does. Use these:
 
-   **Interest List** (A through N):
-   `Timestamp | Primary Name | Phone | Email | Family Branch | City | State | Household Members (JSON) | Num Adults | Num Children | Lodging Needed | Num Rooms | Accessibility/Dietary | Activities Interest`
+   **Interest List** (A through O) — **one row per person**, not per household. Every member of a household repeats that household's shared info (email, phone, etc.) on their own row — this is what lets you filter or sort by age group or T-shirt size directly in the sheet, and see everyone in a household by filtering on Household Email:
+   `Timestamp | Household Email | Primary Contact Name | Phone | Family Branch | City | State | Lodging Needed | Num Rooms Needed | Accessibility/Dietary | Activities Interest | Person Name | Relationship to Primary | Age Group | T-Shirt Size`
 
-   **Registrations** (A through P):
-   `Timestamp | Primary Name | Email | Phone | Family Branch | City | State | Password | Attendees (JSON) | Lodging Selection | Accommodations | Emergency Name | Emergency Phone | Total Owed | Amount Paid | Notes`
+   **Registrations** (A through O) — **one row per attendee**. Household-level fields (password, totals, emergency contact) only ever appear on the row where **Is Primary** is `TRUE` for that household — that's the one row to edit when a payment comes in. Other attendees in the same household have their own row with just their name/age/size filled in and the household-level columns left blank:
+   `Timestamp | Household Email | Primary Name | Is Primary | Password | Lodging Selection | Accommodations | Emergency Name | Emergency Phone | Total Owed | Amount Paid | Notes | Attendee Name | Age Group | T-Shirt Size`
 
    **Family Gatherings** (A through M):
    `Timestamp | Event Name | Host Name | Date/Time | Location | Description | Invited | Cost | RSVP Deadline | RSVP Contact | Status | Submitter Email | Submitter Phone`
@@ -43,7 +43,7 @@ This is the only setup required to make the site fully functional. It takes abou
    **Family Connections** (A through I):
    `Timestamp | Business Name | Owner Name | Category | Description | Website | Phone | Email | Visible`
 
-   There's no public submission form for this one — you (or whoever manages the sheet) add a row directly for each family business/service, and set `Visible` to `TRUE` to publish it.
+   Family members can now submit their own listing via "Submit a Family Connection" — it lands here with `Visible` set to `FALSE`. Change it to `TRUE` to publish it. You can still add entries directly yourself the same way.
 
    **Contact Messages** (A through D):
    `Timestamp | Name | Email | Message`
@@ -118,7 +118,7 @@ This is two separate pieces sharing one address (`updates@russellsharpfamily.com
 
 ### 7. Updating a family's balance
 
-Payments aren't collected online yet — when a family pays you by check, Zelle, cash, etc., open the Google Sheet, find their row on the **Registrations** tab, and update the **Amount Paid** column (column O) directly. Their `/my-invoice` page reflects it immediately.
+Payments aren't collected online yet — when a family pays you by check, Zelle, cash, etc., open the Google Sheet, find that household's row on the **Registrations** tab where **Is Primary** is `TRUE`, and update the **Amount Paid** column (column K) directly. Their `/my-invoice` page reflects it immediately. Other rows for the same household (extra attendees) don't need anything changed.
 
 ### 8. Reviewing Family Gatherings submissions
 

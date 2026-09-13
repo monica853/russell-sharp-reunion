@@ -3,6 +3,13 @@ import { appendRow } from "@/lib/googleSheets";
 import { INTEREST_TAB } from "@/lib/sheetsSchema";
 import { sendEmail, alertCcList } from "@/lib/email";
 
+type HouseholdMember = {
+  name?: string;
+  relationship?: string;
+  ageGroup?: string;
+  tshirtSize?: string;
+};
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -14,8 +21,6 @@ export async function POST(req: NextRequest) {
       city,
       state,
       householdMembers, // [{ name, relationship, ageGroup, tshirtSize }]
-      numAdults,
-      numChildren,
       lodgingNeeded,
       numRooms,
       accessibilityDietary,
@@ -26,22 +31,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name, phone, and email are required." }, { status: 400 });
     }
 
-    await appendRow(INTEREST_TAB, [
-      new Date().toISOString(),
-      primaryName,
-      phone,
-      email,
-      familyBranch || "",
-      city || "",
-      state || "",
-      JSON.stringify(householdMembers || []),
-      numAdults ?? "",
-      numChildren ?? "",
-      lodgingNeeded || "",
-      numRooms ?? "",
-      accessibilityDietary || "",
-      activitiesInterest || "",
-    ]);
+    const members: HouseholdMember[] =
+      Array.isArray(householdMembers) && householdMembers.length > 0
+        ? householdMembers
+        : [{ name: primaryName, relationship: "Self", ageGroup: "", tshirtSize: "" }];
+
+    // One row per person — household-level fields repeated on each row so
+    // every row is self-contained and easy to filter/sort in the sheet.
+    const timestamp = new Date().toISOString();
+    for (const member of members) {
+      await appendRow(INTEREST_TAB, [
+        timestamp,
+        email,
+        primaryName,
+        phone,
+        familyBranch || "",
+        city || "",
+        state || "",
+        lodgingNeeded || "",
+        numRooms ?? "",
+        accessibilityDietary || "",
+        activitiesInterest || "",
+        member.name || "",
+        member.relationship || "",
+        member.ageGroup || "",
+        member.tshirtSize || "",
+      ]);
+    }
 
     sendEmail({
       to: email,

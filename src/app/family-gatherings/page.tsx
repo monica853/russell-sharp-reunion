@@ -5,6 +5,11 @@ import { GATHERINGS_TAB } from "@/lib/sheetsSchema";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Family Gatherings | Russell–Sharp Family",
+  description: "Family-hosted celebrations, outings, and trips throughout the year — beyond the annual reunion.",
+};
+
 type Gathering = {
   eventName: string;
   hostName: string;

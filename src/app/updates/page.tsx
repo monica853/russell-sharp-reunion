@@ -1,5 +1,10 @@
 import PageHero from "@/components/PageHero";
 
+export const metadata = {
+  title: "Family Updates | Russell–Sharp Family",
+  description: "News and updates as reunion planning moves forward.",
+};
+
 const UPDATES = [
   {
     date: "Coming soon",

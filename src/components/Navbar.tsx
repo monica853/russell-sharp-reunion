@@ -62,7 +62,7 @@ export default function Navbar() {
               width={220}
               height={147}
               priority
-              className="h-9 w-auto"
+              className="h-12 w-auto"
             />
           </Link>
 
@@ -89,23 +89,26 @@ export default function Navbar() {
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
-              className="relative z-50 w-9 h-9 flex flex-col items-center justify-center gap-[5px]"
+              className="relative z-50 flex items-center gap-2"
             >
-              <span
-                className={`block h-[1.5px] w-6 bg-[var(--pearl)] transition-transform duration-300 ease-out ${
-                  open ? "translate-y-[6.5px] rotate-45" : ""
-                }`}
-              />
-              <span
-                className={`block h-[1.5px] w-6 bg-[var(--pearl)] transition-opacity duration-200 ${
-                  open ? "opacity-0" : "opacity-100"
-                }`}
-              />
-              <span
-                className={`block h-[1.5px] w-6 bg-[var(--pearl)] transition-transform duration-300 ease-out ${
-                  open ? "-translate-y-[6.5px] -rotate-45" : ""
-                }`}
-              />
+              <span className="hidden lg:inline text-sm font-semibold text-[var(--pearl)]">More</span>
+              <span className="w-9 h-9 flex flex-col items-center justify-center gap-[5px]">
+                <span
+                  className={`block h-[1.5px] w-6 bg-[var(--pearl)] transition-transform duration-300 ease-out ${
+                    open ? "translate-y-[6.5px] rotate-45" : ""
+                  }`}
+                />
+                <span
+                  className={`block h-[1.5px] w-6 bg-[var(--pearl)] transition-opacity duration-200 ${
+                    open ? "opacity-0" : "opacity-100"
+                  }`}
+                />
+                <span
+                  className={`block h-[1.5px] w-6 bg-[var(--pearl)] transition-transform duration-300 ease-out ${
+                    open ? "-translate-y-[6.5px] -rotate-45" : ""
+                  }`}
+                />
+              </span>
             </button>
           </div>
         </div>

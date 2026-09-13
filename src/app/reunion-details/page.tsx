@@ -1,6 +1,11 @@
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 
+export const metadata = {
+  title: "Reunion Details | Russell–Sharp Reunion 2027",
+  description: "September 3–5, 2027 in Atlanta, Georgia. Dates, location, and what to expect at the Russell–Sharp Family Reunion.",
+};
+
 export default function ReunionDetailsPage() {
   return (
     <div>

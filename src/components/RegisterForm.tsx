@@ -29,6 +29,42 @@ export default function RegisterForm() {
   const [errorMsg, setErrorMsg] = useState("");
   const [generatedPassword, setGeneratedPassword] = useState("");
 
+  const [primaryName, setPrimaryName] = useState("");
+  const [email, setEmail] = useState("");
+  const [lookupEmail, setLookupEmail] = useState("");
+  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [lookupError, setLookupError] = useState("");
+
+  async function handleAutofill() {
+    if (!lookupEmail) return;
+    setLookupStatus("loading");
+    setLookupError("");
+    try {
+      const res = await fetch(`/api/interest-list/lookup?email=${encodeURIComponent(lookupEmail)}`);
+      const json = await res.json();
+      if (res.ok) {
+        setPrimaryName(json.primaryName || "");
+        setEmail(lookupEmail);
+        if (Array.isArray(json.members) && json.members.length > 0) {
+          setAttendees(
+            json.members.map((m: Attendee) => ({
+              name: m.name || "",
+              ageGroup: m.ageGroup || "",
+              tshirtSize: m.tshirtSize || "",
+            }))
+          );
+        }
+        setLookupStatus("idle");
+      } else {
+        setLookupError(json.error || "Couldn't find that submission.");
+        setLookupStatus("error");
+      }
+    } catch {
+      setLookupError("Something went wrong. Please try again.");
+      setLookupStatus("error");
+    }
+  }
+
   const total = useMemo(
     () => attendees.reduce((sum, a) => sum + (RATES[a.ageGroup] ?? 0), 0),
     [attendees]
@@ -68,6 +104,8 @@ export default function RegisterForm() {
         setStatus("success");
         form.reset();
         setAttendees([emptyAttendee()]);
+        setPrimaryName("");
+        setEmail("");
       } else {
         setErrorMsg(json.error || "Something went wrong. Please try again.");
         setStatus("error");
@@ -101,16 +139,54 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
+      <div className="card-plaque p-5 space-y-3">
+        <p className="font-heading text-[var(--pearl)] text-sm">Already on the Interest List?</p>
+        <p className="text-xs text-[var(--pearl-dim)]">
+          Enter the email you used to join the interest list, and we&apos;ll fill in your household&apos;s info below.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="email"
+            placeholder="you@example.com"
+            className={inputClass}
+            value={lookupEmail}
+            onChange={(e) => setLookupEmail(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={handleAutofill}
+            disabled={lookupStatus === "loading" || !lookupEmail}
+            className="btn-outline-clean text-sm whitespace-nowrap disabled:opacity-60"
+          >
+            {lookupStatus === "loading" ? "Looking up…" : "Autofill My Info"}
+          </button>
+        </div>
+        {lookupStatus === "error" && <p className="text-[var(--oxblood)] text-sm">{lookupError}</p>}
+      </div>
+
       <fieldset className="space-y-4">
         <legend className="font-heading text-[var(--gold-bright)] tracking-wide mb-2">Household Contact</legend>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Full name</label>
-            <input required name="primary_name" className={inputClass} />
+            <input
+              required
+              name="primary_name"
+              className={inputClass}
+              value={primaryName}
+              onChange={(e) => setPrimaryName(e.target.value)}
+            />
           </div>
           <div>
             <label className={labelClass}>Email</label>
-            <input required name="email" type="email" className={inputClass} />
+            <input
+              required
+              name="email"
+              type="email"
+              className={inputClass}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div>
             <label className={labelClass}>Emergency contact name</label>

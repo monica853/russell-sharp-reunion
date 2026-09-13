@@ -11,7 +11,7 @@ export default function Footer() {
             alt="Russell–Sharp Family"
             width={180}
             height={120}
-            className="h-12 w-auto mb-3"
+            className="h-16 w-auto mb-3"
           />
           <p className="text-[var(--pearl-dim)]">
             September 3&#8211;5, 2027<br />Atlanta, Georgia

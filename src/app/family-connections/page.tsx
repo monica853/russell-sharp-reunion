@@ -1,8 +1,14 @@
+import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import { getSheetValues } from "@/lib/googleSheets";
 import { CONNECTIONS_TAB } from "@/lib/sheetsSchema";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Family Connections | Russell–Sharp Family",
+  description: "Businesses, services, and projects shared by members of the Russell–Sharp family.",
+};
 
 type Connection = {
   businessName: string;
@@ -47,11 +53,19 @@ export default async function FamilyConnectionsPage() {
       />
 
       <section className="mx-auto max-w-3xl px-5 py-16">
+        <div className="text-center mb-12">
+          <Link href="/family-connections/submit" className="btn-primary">
+            Submit a Family Connection
+          </Link>
+          <p className="text-xs text-[var(--pearl-dim)]/70 mt-3">
+            Submissions are reviewed before appearing here.
+          </p>
+        </div>
+
         {connections.length === 0 ? (
           <div className="card-plaque p-8 text-center space-y-3">
             <p className="text-[var(--pearl-dim)]">
-              Nothing listed here yet. If you&apos;d like your business, service, or project featured, reach out
-              through the Contact page.
+              Nothing listed here yet &mdash; be the first to share your business, service, or project!
             </p>
           </div>
         ) : (

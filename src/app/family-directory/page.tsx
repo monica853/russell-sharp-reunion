@@ -1,6 +1,11 @@
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 
+export const metadata = {
+  title: "Family Directory | Russell–Sharp Family",
+  description: "A growing directory of the Russell and Sharp family branches.",
+};
+
 export default function FamilyDirectoryPage() {
   return (
     <div>

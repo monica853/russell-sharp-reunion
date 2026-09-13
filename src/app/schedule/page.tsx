@@ -1,5 +1,10 @@
 import PageHero from "@/components/PageHero";
 
+export const metadata = {
+  title: "Schedule | Russell–Sharp Reunion 2027",
+  description: "The weekend schedule for the Russell–Sharp Family Reunion, September 3–5, 2027.",
+};
+
 const DAYS = [
   { label: "Friday, September 3", note: "Arrivals & welcome" },
   { label: "Saturday, September 4", note: "Main reunion day" },
