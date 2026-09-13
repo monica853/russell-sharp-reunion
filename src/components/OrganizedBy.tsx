@@ -23,19 +23,19 @@ const ORGANIZERS: Organizer[] = [
 
 function OrganizerCard({ organizer }: { organizer: Organizer }) {
   const content = (
-    <div className="flex flex-col items-center gap-2 text-center w-24">
+    <div className="flex flex-col items-center gap-3 text-center w-32">
       {organizer.photo ? (
-        <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[var(--gold)]">
-          <Image src={organizer.photo} alt={organizer.name} width={56} height={56} className="w-full h-full object-cover" />
+        <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-[var(--gold)]">
+          <Image src={organizer.photo} alt={organizer.name} width={96} height={96} className="w-full h-full object-cover" />
         </div>
       ) : (
-        <div className="w-14 h-14 rounded-full border-2 border-dashed border-[var(--gold-dark)] flex items-center justify-center">
-          <User className="w-5 h-5 text-[var(--muted)]" strokeWidth={1.5} />
+        <div className="w-24 h-24 rounded-full border-[3px] border-dashed border-[var(--gold-dark)] flex items-center justify-center">
+          <User className="w-8 h-8 text-[var(--muted)]" strokeWidth={1.5} />
         </div>
       )}
       <div>
-        <p className="text-sm font-semibold text-[var(--pearl)] leading-tight">{organizer.name}</p>
-        <p className="text-xs text-[var(--muted)] leading-tight">{organizer.role}</p>
+        <p className="text-base font-semibold text-[var(--pearl)] leading-tight">{organizer.name}</p>
+        <p className="text-sm text-[var(--muted)] leading-tight">{organizer.role}</p>
       </div>
     </div>
   );
@@ -57,7 +57,7 @@ export default function OrganizedBy() {
         <p className="text-center text-xs tracking-[0.2em] text-[var(--gold)] font-semibold mb-8">
           ORGANIZED BY
         </p>
-        <div className="flex flex-wrap justify-center gap-x-10 gap-y-6">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-8">
           {ORGANIZERS.map((o, i) => (
             <OrganizerCard key={i} organizer={o} />
           ))}
