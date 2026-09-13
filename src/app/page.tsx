@@ -59,7 +59,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero — Atlanta skyline stays fixed behind the content as it scrolls */}
-      <section className="relative min-h-[85vh] sm:min-h-screen bg-[url('/images/atlanta-skyline-mobile.png')] sm:bg-[url('/images/atlanta-skyline.png')] bg-cover bg-center bg-fixed flex flex-col justify-center overflow-hidden">
+      <section className="relative min-h-[85vh] sm:min-h-screen bg-[url('/images/atlanta-skyline-mobile.png')] sm:bg-[url('/images/atlanta-skyline.png')] bg-cover bg-center flex flex-col justify-center overflow-hidden">
         <div
           className="absolute inset-0"
           style={{ backgroundImage: "linear-gradient(to right, #080808 0%, rgba(8,8,8,0.85) 50%, rgba(8,8,8,0.4) 100%)" }}
