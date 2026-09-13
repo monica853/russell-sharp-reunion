@@ -60,8 +60,14 @@ export default function Home() {
     <div>
       {/* Hero — Atlanta skyline stays fixed behind the content as it scrolls */}
       <section className="relative min-h-[85vh] sm:min-h-screen bg-[url('/images/atlanta-skyline-mobile.png')] sm:bg-[url('/images/atlanta-skyline.png')] bg-cover bg-center bg-fixed flex flex-col justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--ink)] via-[var(--ink)]/85 to-[var(--ink)]/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)] via-transparent to-[var(--ink)]/30" />
+        <div
+          className="absolute inset-0"
+          style={{ backgroundImage: "linear-gradient(to right, #080808 0%, rgba(8,8,8,0.85) 50%, rgba(8,8,8,0.4) 100%)" }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{ backgroundImage: "linear-gradient(to top, #080808 0%, rgba(8,8,8,0) 50%, rgba(8,8,8,0.3) 100%)" }}
+        />
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 py-20 grid lg:grid-cols-[1fr_auto] gap-14 items-end">
           <div className="min-w-0">
@@ -88,7 +94,10 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="min-w-0 bg-black/50 backdrop-blur-sm border border-[var(--gold-dark)]/40 rounded-2xl p-6 sm:p-8 flex flex-wrap lg:flex-nowrap lg:flex-col gap-x-10 gap-y-7 lg:gap-8 lg:items-end lg:text-right">
+          <div
+            className="min-w-0 backdrop-blur-sm rounded-2xl p-6 sm:p-8 flex flex-wrap lg:flex-nowrap lg:flex-col gap-x-10 gap-y-7 lg:gap-8 lg:items-end lg:text-right"
+            style={{ backgroundColor: "rgba(0,0,0,0.5)", border: "1px solid rgba(111,87,45,0.4)" }}
+          >
             <div>
               <span className="tag-label">WHEN</span>
               <p className="text-2xl sm:text-3xl font-bold text-white mt-2">Sept 3&#8211;5</p>
