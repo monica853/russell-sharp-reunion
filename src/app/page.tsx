@@ -1,20 +1,59 @@
 import Image from "next/image";
 import Link from "next/link";
+import {
+  CalendarHeart,
+  ClipboardList,
+  UserPlus,
+  Wallet,
+  BedDouble,
+  CalendarClock,
+  Users,
+  PartyPopper,
+  Handshake,
+  Megaphone,
+  type LucideIcon,
+} from "lucide-react";
 import Countdown from "@/components/Countdown";
 import { TIMELINE } from "@/lib/timeline";
 
-const SECTIONS = [
-  { href: "/reunion-details", title: "Reunion Details", body: "September 3–5, 2027 · Atlanta, Georgia" },
-  { href: "/interest-list", title: "Join the Interest List", body: "Early headcount and contact information" },
-  { href: "/register", title: "Register Your Household", body: "Primary person, spouse, adults, and children" },
-  { href: "/family-directory", title: "Family Directory", body: "Russell and Sharp family branches" },
-  { href: "/family-gatherings", title: "Family Gatherings", body: "Hikes, cookouts, and celebrations year-round" },
-  { href: "/family-connections", title: "Family Connections", body: "Businesses and services shared by family" },
-  { href: "/schedule", title: "Schedule", body: "Activities added as plans are confirmed" },
-  { href: "/hotel-travel", title: "Hotel & Travel", body: "Where to stay and how to get there" },
-  { href: "/payments", title: "Payments", body: "Deposit, balances, and due dates" },
-  { href: "/updates", title: "Family Updates", body: "News as planning moves forward" },
+type SectionLink = { href: string; title: string; body: string; icon: LucideIcon };
+
+const REUNION_SECTIONS: SectionLink[] = [
+  { href: "/reunion-details", title: "Reunion Details", body: "September 3–5, 2027 · Atlanta", icon: CalendarHeart },
+  { href: "/interest-list", title: "Interest List", body: "Tell us you're planning to come", icon: ClipboardList },
+  { href: "/register", title: "Register", body: "Reserve your household's place", icon: UserPlus },
+  { href: "/payments", title: "Registration Timeline", body: "Deposit, balances, and due dates", icon: Wallet },
+  { href: "/hotel-travel", title: "Lodging", body: "Where to stay and how to get there", icon: BedDouble },
+  { href: "/schedule", title: "Schedule", body: "Activities as plans are confirmed", icon: CalendarClock },
 ];
+
+const FAMILY_SECTIONS: SectionLink[] = [
+  { href: "/family-directory", title: "Family Directory", body: "Russell and Sharp family branches", icon: Users },
+  { href: "/family-gatherings", title: "Family Gatherings", body: "Hikes, cookouts, celebrations year-round", icon: PartyPopper },
+  { href: "/family-connections", title: "Family Connections", body: "Businesses and services shared by family", icon: Handshake },
+  { href: "/updates", title: "Family Updates", body: "News as planning moves forward", icon: Megaphone },
+];
+
+function SectionGrid({ items }: { items: SectionLink[] }) {
+  return (
+    <div className="grid sm:grid-cols-2 gap-4">
+      {items.map((s) => {
+        const Icon = s.icon;
+        return (
+          <Link key={s.href} href={s.href} className="group flex items-start gap-4 py-3">
+            <Icon className="w-5 h-5 mt-1 text-[var(--gold)] shrink-0" strokeWidth={1.5} />
+            <div>
+              <p className="font-heading text-[var(--pearl)] group-hover:text-[var(--gold-bright)] transition-colors">
+                {s.title}
+              </p>
+              <p className="text-sm text-[var(--pearl-dim)] mt-0.5">{s.body}</p>
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -63,20 +102,24 @@ export default function Home() {
       <div className="chevron-divider mt-16" />
 
       {/* Section overview */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      <section className="mx-auto max-w-3xl px-5 py-16">
         <h2 className="font-heading text-center text-[var(--gold-bright)] text-2xl tracking-wide mb-2">
           Find Your Way Around
         </h2>
-        <p className="text-center text-[var(--pearl-dim)] mb-10 max-w-xl mx-auto">
-          The site will grow with the reunion. Here&apos;s what&apos;s here now, and what&apos;s coming as each phase opens.
+        <p className="text-center text-[var(--pearl-dim)] mb-12 max-w-lg mx-auto">
+          The site will grow with the reunion &mdash; here&apos;s what&apos;s here now.
         </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {SECTIONS.map((s) => (
-            <Link key={s.href} href={s.href} className="card-plaque p-5 block hover:border-[var(--gold)] transition-colors">
-              <p className="font-heading text-[var(--gold-bright)] mb-1">{s.title}</p>
-              <p className="text-sm text-[var(--pearl-dim)]">{s.body}</p>
-            </Link>
-          ))}
+
+        <div className="space-y-10">
+          <div>
+            <p className="font-heading text-xs tracking-[0.2em] text-[var(--gold)] mb-4">REUNION 2027</p>
+            <SectionGrid items={REUNION_SECTIONS} />
+          </div>
+          <div className="deco-rule" />
+          <div>
+            <p className="font-heading text-xs tracking-[0.2em] text-[var(--gold)] mb-4">FAMILY</p>
+            <SectionGrid items={FAMILY_SECTIONS} />
+          </div>
         </div>
       </section>
 

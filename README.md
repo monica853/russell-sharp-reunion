@@ -63,7 +63,7 @@ A service account is a robot account that only your app uses to read/write this 
    - Name: `reunion-site` (anything works)
    - Click **Create and Continue**
    - Skip the optional "grant access" steps → **Continue** → **Done**
-6. Click on the service account you just created (it'll look like `reunion-site@your-project.iam.gservichttps://console.cloud.google.com/apis/credentials/consent?project=russell-sharp-reunioneaccount.com`).
+6. Click on the service account you just created (it'll look like `reunion-site@your-project.iam.gserviceaccount.com`).
 7. Go to the **Keys** tab → **Add Key** → **Create new key** → choose **JSON** → **Create**. A `.json` file downloads to your computer. **Keep this file private** — anyone with it can access your Sheet.
 
 ### 3. Share the Sheet with the service account
@@ -93,15 +93,38 @@ export const CURRENT_PHASE: 1 | 2 | 3 | 4 = 1;
 
 Bump it to `2` when registration opens and the `/register` page automatically switches from "not open yet" to the live registration form. No other code changes needed.
 
-### 6. Updating a family's balance
+### 6. Set up email: real inbox + automated confirmations
+
+This is two separate pieces sharing one address (`updates@russellsharpfamily.com`): a real mailbox you can log into and write from (Zoho Mail), and a service the site uses to send automatic confirmations (Resend). Both need DNS records added — for a domain bought through Vercel, that's under your project's **Domains** settings (or [vercel.com/domains](https://vercel.com/domains) → click the domain → DNS Records), not a separate registrar.
+
+**Part 1 — Zoho Mail (the real inbox), free for up to 5 mailboxes:**
+
+1. Go to [zoho.com/mail](https://www.zoho.com/mail/) → sign up → choose the free **Mail Lite** plan → add `russellsharpfamily.com` as your domain.
+2. Zoho will give you a TXT record to prove you own the domain — add it in Vercel's DNS records for this domain, wait a few minutes, then click Verify in Zoho.
+3. Zoho then gives you MX records (usually 2-3) — add each one in Vercel's DNS records exactly as shown (same Host, Priority, and Value/Points To fields Zoho lists).
+4. Zoho also gives you an SPF TXT record — add that too. (If Resend later asks for its own SPF record, don't add a second one — merge them into a single TXT record, see Part 2.)
+5. In Zoho's admin panel, create the actual mailbox: `updates@russellsharpfamily.com`. You can now log into mail.zoho.com with that address to read and send email like a normal inbox.
+
+**Part 2 — Resend (automated sending), free for this volume:**
+
+1. Go to [resend.com](https://resend.com) → sign up → **Domains** → **Add Domain** → enter `russellsharpfamily.com`.
+2. Resend gives you a few DNS records (typically one or two DKIM CNAMEs, and an SPF-related TXT record). Add the CNAMEs as new records in Vercel.
+3. For the SPF TXT record: if you already added Zoho's SPF record in Part 1, don't create a second TXT record at the same host — edit that existing one so it lists both, e.g. `v=spf1 include:zoho.com include:amazonses.com ~all` (Resend will tell you exactly what to include). Having two separate SPF TXT records at the same host breaks both.
+4. Back in Resend, click Verify — once all records show green, your domain is ready to send from.
+5. Go to **API Keys** → **Create API Key** → copy it.
+6. Add it to `.env.local` as `RESEND_API_KEY=` and to Vercel's Environment Variables the same way.
+
+**Once both are done:** Interest List and Registration submissions automatically email the person who submitted, and CC everyone listed in `ALERT_CC_EMAILS` in `src/lib/config.ts` (add your own email and anyone else who should be notified — it's empty by default). Family Gatherings submissions notify that same list so someone knows to review them, and the Contact form emails that list directly.
+
+### 7. Updating a family's balance
 
 Payments aren't collected online yet — when a family pays you by check, Zelle, cash, etc., open the Google Sheet, find their row on the **Registrations** tab, and update the **Amount Paid** column (column O) directly. Their `/my-invoice` page reflects it immediately.
 
-### 7. Reviewing Family Gatherings submissions
+### 8. Reviewing Family Gatherings submissions
 
 When someone submits an event through "Submit a Family Event," it lands as a new row on the **Family Gatherings** tab with Status set to `Pending` — it will not show on the public page yet. Review the details, and when you're ready to publish it, change that row's **Status** cell to `Approved`. It appears on `/family-gatherings` right away.
 
-### 8. Local development
+### 9. Local development
 
 ```bash
 npm install
@@ -122,7 +145,7 @@ Visit http://localhost:3000
    git push -u origin main
    ```
 2. In Vercel, click **Add New Project** → **Import** your GitHub repo
-3. Add the four environment variables from step 4 above under the project's Environment Variables before deploying
+3. Add all five environment variables (the four from step 4, plus `RESEND_API_KEY` from step 6) under the project's Environment Variables before deploying
 4. Vercel auto-detects Next.js — leave the defaults and click **Deploy**
 5. In your Vercel project settings → **Domains**, add `russellsharpfamily.com` (the domain you already own) and follow Vercel's DNS instructions
 
@@ -134,3 +157,5 @@ From then on, every `git push` to `main` auto-deploys the update.
 - **Hotel info:** `src/lib/config.ts` (`HOTEL` object) and `src/app/hotel-travel/page.tsx`
 - **Homepage poster:** `public/images/save-the-date.png`
 - **Google Sheet tab names / column layout:** `src/lib/sheetsSchema.ts` and the API routes in `src/app/api/`
+- **Who gets CC'd on confirmation/alert emails:** `ALERT_CC_EMAILS` in `src/lib/config.ts`
+- **Confirmation email wording:** inside each route in `src/app/api/` (interest-list, register, gatherings, contact)

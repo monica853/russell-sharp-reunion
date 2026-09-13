@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSheetValues, appendRow, findRowNumber } from "@/lib/googleSheets";
 import { signSession, SESSION_COOKIE } from "@/lib/auth";
 import { REG_TAB, RATE_MAP } from "@/lib/sheetsSchema";
+import { sendEmail, alertCcList } from "@/lib/email";
 
 function generatePassword(): string {
   // Short, easy to read over the phone: e.g. "PEACH482"
@@ -65,6 +66,24 @@ export async function POST(req: NextRequest) {
       25, // AmountPaid — the $25 deposit; staff updates this as further payments come in
       "",
     ]);
+
+    sendEmail({
+      to: email,
+      cc: alertCcList(),
+      subject: "You're registered! — Russell–Sharp Family Reunion",
+      text: `Hi ${primaryName},
+
+Your household is registered for the Russell–Sharp Family Reunion — September 3–5, 2027, in Atlanta, Georgia. The $25 deposit has been recorded toward your total of $${total.toFixed(2)}.
+
+Your invoice login (save this for your records):
+  Email: ${email}
+  Password: ${password}
+
+Use these anytime at russellsharpfamily.com/my-invoice to check your balance.
+
+Same Roots. New Vibes.
+— Russell–Sharp Family Reunion`,
+    });
 
     const token = signSession({ householdId: email, name: primaryName });
     const res = NextResponse.json({ success: true, password, total });
