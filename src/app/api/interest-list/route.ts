@@ -59,6 +59,16 @@ export async function POST(req: NextRequest) {
     ]);
     await appendRows(INTEREST_TAB, rows);
 
+    const memberLines = members
+      .map((m) => {
+        const parts = [m.name || "(name not given)"];
+        if (m.relationship) parts.push(m.relationship);
+        if (m.ageGroup) parts.push(m.ageGroup);
+        if (m.tshirtSize) parts.push(`shirt: ${m.tshirtSize}`);
+        return "  • " + parts.join(" — ");
+      })
+      .join("\n");
+
     sendEmail({
       to: email,
       cc: alertCcList(),
@@ -67,7 +77,23 @@ export async function POST(req: NextRequest) {
 
 Thanks for joining the interest list for the Russell–Sharp Family Reunion — September 3–5, 2027, in Atlanta, Georgia.
 
+Here's what we have on file for your household:
+
+  Primary contact: ${primaryName}
+  Phone: ${phone}
+  Email: ${email}
+  Family branch: ${familyBranch || "—"}
+  City/State: ${[city, state].filter(Boolean).join(", ") || "—"}
+  Lodging needed: ${lodgingNeeded || "—"}${numRooms ? ` (${numRooms} room(s))` : ""}
+  Accessibility/dietary needs: ${accessibilityDietary || "—"}
+  Activities interested in: ${activitiesInterest || "—"}
+
+Household members:
+${memberLines}
+
 This doesn't complete your official registration, but it helps us plan lodging, activities, transportation, meals, and reunion apparel. We'll be in touch as registration opens.
+
+If anything above looks wrong, just reply to this email and let us know.
 
 Same Roots. New Vibes.
 — Russell–Sharp Family Reunion`,

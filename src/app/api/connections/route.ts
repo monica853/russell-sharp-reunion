@@ -27,23 +27,38 @@ export async function POST(req: NextRequest) {
       "FALSE", // Visible — flip to TRUE in the sheet to publish it
     ]);
 
+    const recap = `Business/service: ${businessName}
+Your name: ${ownerName}
+Category: ${category || "—"}
+Website: ${website || "—"}
+Phone: ${phone || "—"}
+Email: ${email || "—"}
+Description: ${description || "—"}`;
+
+    const cc = alertCcList();
     if (email) {
       sendEmail({
         to: email,
-        cc: alertCcList(),
+        cc,
         subject: `Submitted for review: ${businessName}`,
         text: `Thanks for sharing "${businessName}" on Family Connections!
 
-It's been sent to the family for review and will appear on russellsharpfamily.com/family-connections once approved.
+Here's what was submitted:
+
+${recap}
+
+It's been sent to the family for review and will appear on russellsharpfamily.com/family-connections once approved. If anything above needs correcting, just reply to this email.
 
 — Russell–Sharp Family Reunion`,
       });
-    } else if (alertCcList().length) {
+    } else if (cc.length) {
       sendEmail({
-        to: alertCcList()[0],
-        cc: alertCcList().slice(1),
+        to: cc[0],
+        cc: cc.slice(1),
         subject: `New connection awaiting review: ${businessName}`,
-        text: `"${businessName}" was just submitted to Family Connections and is waiting for your review in the Google Sheet (Visible: FALSE).`,
+        text: `A new listing was submitted to Family Connections and is waiting for your review (Visible: FALSE).
+
+${recap}`,
       });
     }
 

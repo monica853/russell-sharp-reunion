@@ -25,6 +25,21 @@ export async function POST(req: NextRequest) {
       sendEmail({ to: FROM_EMAIL, subject: `New contact message from ${name}`, text: `From: ${name} <${email}>\n\n${message}` });
     }
 
+    // Confirm back to whoever sent the message, so they know it went through.
+    sendEmail({
+      to: email,
+      subject: "We got your message — Russell–Sharp Family Reunion",
+      text: `Hi ${name},
+
+Thanks for reaching out! Here's a copy of what you sent us:
+
+"${message}"
+
+We'll get back to you soon.
+
+— Russell–Sharp Family Reunion`,
+    });
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Contact form error:", err);

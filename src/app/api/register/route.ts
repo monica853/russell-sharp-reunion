@@ -91,19 +91,43 @@ export async function POST(req: NextRequest) {
     ];
     await appendRows(REG_TAB, rows);
 
+    const attendeeLines = list
+      .map((a) => {
+        const parts = [a.name || "(name not given)"];
+        if (a.ageGroup) parts.push(a.ageGroup);
+        if (a.tshirtSize) parts.push(`shirt: ${a.tshirtSize}`);
+        const fee = RATE_MAP[a.ageGroup || ""] ?? 0;
+        parts.push(`$${fee.toFixed(2)}`);
+        return "  • " + parts.join(" — ");
+      })
+      .join("\n");
+
     sendEmail({
       to: email,
       cc: alertCcList(),
       subject: "You're registered! — Russell–Sharp Family Reunion",
       text: `Hi ${primaryName},
 
-Your household is registered for the Russell–Sharp Family Reunion — September 3–5, 2027, in Atlanta, Georgia. The $25 deposit has been recorded toward your total of $${total.toFixed(2)}.
+Your household is registered for the Russell–Sharp Family Reunion — September 3–5, 2027, in Atlanta, Georgia.
+
+Attendees:
+${attendeeLines}
+
+Household total: $${total.toFixed(2)}
+Deposit paid today: $25.00
+Remaining balance: $${Math.max(0, total - 25).toFixed(2)}
+
+Lodging selection: ${lodgingSelection || "—"}
+Special accommodations: ${accommodations || "—"}
+Emergency contact: ${emergencyName || "—"}${emergencyPhone ? ` (${emergencyPhone})` : ""}
 
 Your invoice login (save this for your records):
   Email: ${email}
   Password: ${password}
 
-Use these anytime at russellsharpfamily.com/my-invoice to check your balance.
+Use these anytime at russellsharpfamily.com/my-invoice to check your balance. At least 50% of the total is due by March 31, 2027, with the remaining balance due by June 30, 2027.
+
+If anything above looks wrong, just reply to this email and let us know.
 
 Same Roots. New Vibes.
 — Russell–Sharp Family Reunion`,

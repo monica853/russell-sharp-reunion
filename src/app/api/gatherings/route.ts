@@ -43,23 +43,41 @@ export async function POST(req: NextRequest) {
       submitterPhone || "",
     ]);
 
+    const recap = `Event: ${eventName}
+Host: ${hostName}
+Date/time: ${dateTime}
+Location: ${location}
+Who's invited: ${invited || "—"}
+Cost: ${cost || "—"}
+RSVP deadline: ${rsvpDeadline || "—"}
+RSVP/contact: ${rsvpContact}
+Description: ${description || "—"}`;
+
+    const cc = alertCcList();
     if (submitterEmail) {
       sendEmail({
         to: submitterEmail,
-        cc: alertCcList(),
+        cc,
         subject: `Event submitted for review: ${eventName}`,
         text: `Thanks for submitting "${eventName}" to Family Gatherings!
 
-It's been sent to the family for review and will appear on russellsharpfamily.com/family-gatherings once approved.
+Here's what was submitted:
+
+${recap}
+
+It's been sent to the family for review and will appear on russellsharpfamily.com/family-gatherings once approved. If anything above needs correcting, just reply to this email.
 
 — Russell–Sharp Family Reunion`,
       });
-    } else if (alertCcList().length) {
+    } else if (cc.length) {
+      // No submitter email on file — still make sure organizers see it.
       sendEmail({
-        to: alertCcList()[0],
-        cc: alertCcList().slice(1),
+        to: cc[0],
+        cc: cc.slice(1),
         subject: `New event awaiting review: ${eventName}`,
-        text: `"${eventName}" was just submitted to Family Gatherings and is waiting for your review in the Google Sheet (Status: Pending).`,
+        text: `A new event was submitted to Family Gatherings and is waiting for your review (Status: Pending).
+
+${recap}`,
       });
     }
 
