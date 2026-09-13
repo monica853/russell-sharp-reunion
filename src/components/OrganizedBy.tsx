@@ -15,10 +15,17 @@ const ORGANIZERS: Organizer[] = [
     photo: "/images/organizers/glenda-shaw.jpg",
     link: "https://www.facebook.com/glenda.1.shaw",
   },
-  { name: "Organizer", role: "Open Spot" },
-  { name: "Organizer", role: "Open Spot" },
-  { name: "Organizer", role: "Open Spot" },
-  { name: "Organizer", role: "Open Spot" },
+  { name: "Linda Brooks", role: "Co-Chair", photo: "/images/organizers/linda-brooks.jpg" },
+  { name: "Brittney Sharp", role: "Decorations & Theme", photo: "/images/organizers/brittney-sharp.jpg" },
+  { name: "Venita Davis", role: "Family Memorabilia Coordinator", photo: "/images/organizers/venita-davis.jpg" },
+  { name: "Nia, Tori & Hollis", role: "Events & Activities", photo: "/images/organizers/nia-tori-hollis.jpg" },
+  { name: "Madison Jefferson", role: "Youth & Family Fun", photo: "/images/organizers/madison-jefferson.jpg" },
+  { name: "Janeka Mearon", role: "Hotel & Hospitality", photo: "/images/organizers/janeka-mearon.jpg" },
+  { name: "David Brown", role: "Birmingham Team Coordinator", photo: "/images/organizers/david-brown.jpg" },
+  { name: "Francona Ford", role: "Selma/Montgomery Coordinator", photo: "/images/organizers/francona-ford.jpg" },
+  { name: "Beverly \"Blondi\" Craig", role: "Summerfield Team Coordinator", photo: "/images/organizers/beverly-blondi-craig.jpg" },
+  { name: "Jonathan Dickerson", role: "Family History & Legacy / Mobile Coordinator", photo: "/images/organizers/jonathan-dickerson.jpg" },
+  { name: "Monica Russell", role: "Treasurer & Registration", photo: "/images/organizers/monica-russell.jpg" },
 ];
 
 function OrganizerCard({ organizer }: { organizer: Organizer }) {
