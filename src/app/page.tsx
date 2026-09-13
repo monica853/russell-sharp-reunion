@@ -83,20 +83,20 @@ export default function Home() {
                 Reunion Details
               </Link>
             </div>
-            <p className="mt-4 text-xs text-[var(--pearl-dim)]/70 max-w-sm">
+            <p className="mt-4 text-sm text-[var(--pearl-dim)] max-w-sm">
               No payment required at this stage &mdash; joining the list simply helps us plan lodging, activities, and reunion apparel.
             </p>
           </div>
 
-          <div className="min-w-0 flex flex-wrap lg:flex-nowrap lg:flex-col gap-x-8 gap-y-6 lg:gap-7 lg:items-end lg:text-right">
+          <div className="min-w-0 bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-wrap lg:flex-nowrap lg:flex-col gap-x-10 gap-y-7 lg:gap-8 lg:items-end lg:text-right">
             <div>
               <span className="tag-label">WHEN</span>
-              <p className="text-xl sm:text-2xl font-bold text-white mt-1.5">Sept 3&#8211;5</p>
-              <p className="text-sm text-[var(--pearl-dim)]">2027</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white mt-2">Sept 3&#8211;5</p>
+              <p className="text-base text-[var(--pearl-dim)]">2027</p>
             </div>
             <div>
               <span className="tag-label">WHERE</span>
-              <p className="text-xl sm:text-2xl font-bold text-white mt-1.5">Atlanta, GA</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white mt-2">Atlanta, GA</p>
             </div>
             <Countdown variant="minimal" />
           </div>
@@ -171,13 +171,13 @@ export default function Home() {
           {TIMELINE.map((t, i) => (
             <li key={i} className="flex gap-4">
               <div className="flex flex-col items-center pt-1">
-                <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
+                <span className="w-3 h-3 rounded-full bg-[var(--accent)] mt-1" />
                 {i < TIMELINE.length - 1 && <span className="w-px flex-1 bg-white/15 mt-2" />}
               </div>
               <div className="pb-2">
-                <p className="text-xs tracking-wide text-[var(--accent-bright)] font-semibold">{t.when}</p>
-                <p className="font-semibold text-[var(--pearl)] mt-1">{t.title}</p>
-                <p className="text-sm text-[var(--pearl-dim)] mt-1">{t.body}</p>
+                <p className="text-sm tracking-wide text-[var(--accent-bright)] font-bold">{t.when}</p>
+                <p className="font-semibold text-lg text-[var(--pearl)] mt-1">{t.title}</p>
+                <p className="text-base text-[var(--pearl-dim)] mt-1">{t.body}</p>
               </div>
             </li>
           ))}

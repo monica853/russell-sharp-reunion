@@ -66,12 +66,12 @@ export default function Navbar() {
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-7">
             {PRIMARY_LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-sm text-[var(--pearl-dim)] hover:text-[var(--pearl)] transition-colors"
+                className="text-base font-semibold text-[var(--pearl)] hover:text-white transition-colors"
               >
                 {l.label}
               </Link>

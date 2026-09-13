@@ -32,13 +32,13 @@ export default function Countdown({ variant = "plaque" }: { variant?: "plaque" |
 
   if (variant === "minimal") {
     return (
-      <div className="flex flex-wrap gap-4 sm:gap-5">
+      <div className="flex flex-wrap gap-5 sm:gap-6">
         {units.map(([label, value]) => (
           <div key={label} className="text-center">
-            <div className="font-black text-2xl sm:text-3xl text-white tabular-nums">
+            <div className="font-black text-3xl sm:text-4xl text-white tabular-nums">
               {String(value).padStart(2, "0")}
             </div>
-            <div className="text-[10px] tracking-[0.1em] text-[var(--pearl-dim)] mt-0.5">
+            <div className="text-xs tracking-[0.1em] text-[var(--pearl-dim)] mt-1 font-semibold">
               {label.toUpperCase()}
             </div>
           </div>
