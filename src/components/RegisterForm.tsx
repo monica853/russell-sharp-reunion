@@ -6,7 +6,7 @@ import Link from "next/link";
 type Attendee = { name: string; ageGroup: string; tshirtSize: string };
 
 const RATES: Record<string, number> = {
-  "75+": 0,
+  "75+": 95,
   "18–74": 195,
   "12–17": 30,
   "5–11": 20,

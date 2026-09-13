@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { appendRow } from "@/lib/googleSheets";
+import { appendRows } from "@/lib/googleSheets";
 import { INTEREST_TAB } from "@/lib/sheetsSchema";
 import { sendEmail, alertCcList } from "@/lib/email";
 
@@ -38,26 +38,26 @@ export async function POST(req: NextRequest) {
 
     // One row per person — household-level fields repeated on each row so
     // every row is self-contained and easy to filter/sort in the sheet.
+    // All rows go up in a single batched API call.
     const timestamp = new Date().toISOString();
-    for (const member of members) {
-      await appendRow(INTEREST_TAB, [
-        timestamp,
-        email,
-        primaryName,
-        phone,
-        familyBranch || "",
-        city || "",
-        state || "",
-        lodgingNeeded || "",
-        numRooms ?? "",
-        accessibilityDietary || "",
-        activitiesInterest || "",
-        member.name || "",
-        member.relationship || "",
-        member.ageGroup || "",
-        member.tshirtSize || "",
-      ]);
-    }
+    const rows = members.map((member) => [
+      timestamp,
+      email,
+      primaryName,
+      phone,
+      familyBranch || "",
+      city || "",
+      state || "",
+      lodgingNeeded || "",
+      numRooms ?? "",
+      accessibilityDietary || "",
+      activitiesInterest || "",
+      member.name || "",
+      member.relationship || "",
+      member.ageGroup || "",
+      member.tshirtSize || "",
+    ]);
+    await appendRows(INTEREST_TAB, rows);
 
     sendEmail({
       to: email,

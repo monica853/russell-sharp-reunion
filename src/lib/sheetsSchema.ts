@@ -8,7 +8,7 @@ export const CONNECTIONS_TAB = "Family Connections";
 export const CONTACT_TAB = "Contact Messages";
 
 export const RATE_MAP: Record<string, number> = {
-  "75+": 0,
+  "75+": 95,
   "18–74": 195,
   "12–17": 30,
   "5–11": 20,

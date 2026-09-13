@@ -45,7 +45,7 @@ export const TIMELINE: TimelineItem[] = [
 ];
 
 export const REGISTRATION_RATES = [
-  { group: "Ages 75 and older", fee: "$0" },
+  { group: "Ages 75 and older", fee: "$95" },
   { group: "Ages 18–74", fee: "$195" },
   { group: "Ages 12–17", fee: "$30" },
   { group: "Ages 5–11", fee: "$20" },

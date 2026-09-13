@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSheetValues, appendRow } from "@/lib/googleSheets";
+import { getSheetValues, appendRows } from "@/lib/googleSheets";
 import { signSession, SESSION_COOKIE } from "@/lib/auth";
 import { REG_TAB, REG_COLS, RATE_MAP } from "@/lib/sheetsSchema";
 import { sendEmail, alertCcList } from "@/lib/email";
@@ -51,28 +51,27 @@ export async function POST(req: NextRequest) {
     const timestamp = new Date().toISOString();
 
     // First row (the "primary" row) carries every household-level field —
-    // this is the one row staff edits when a payment comes in.
-    await appendRow(REG_TAB, [
-      timestamp,
-      email,
-      primaryName,
-      "TRUE", // IsPrimary
-      password,
-      lodgingSelection || "",
-      accommodations || "",
-      emergencyName || "",
-      emergencyPhone || "",
-      total, // TotalOwed
-      25, // AmountPaid — the $25 deposit; staff updates this as further payments come in
-      "", // Notes
-      list[0].name || "",
-      list[0].ageGroup || "",
-      list[0].tshirtSize || "",
-    ]);
-
-    // Remaining attendees each get their own row, household-level columns left blank.
-    for (const a of list.slice(1)) {
-      await appendRow(REG_TAB, [
+    // this is the one row staff edits when a payment comes in. Every
+    // attendee row is written in a single batched call.
+    const rows: (string | number)[][] = [
+      [
+        timestamp,
+        email,
+        primaryName,
+        "TRUE", // IsPrimary
+        password,
+        lodgingSelection || "",
+        accommodations || "",
+        emergencyName || "",
+        emergencyPhone || "",
+        total, // TotalOwed
+        25, // AmountPaid — the $25 deposit; staff updates this as further payments come in
+        "", // Notes
+        list[0].name || "",
+        list[0].ageGroup || "",
+        list[0].tshirtSize || "",
+      ],
+      ...list.slice(1).map((a) => [
         timestamp,
         email,
         primaryName,
@@ -88,8 +87,9 @@ export async function POST(req: NextRequest) {
         a.name || "",
         a.ageGroup || "",
         a.tshirtSize || "",
-      ]);
-    }
+      ]),
+    ];
+    await appendRows(REG_TAB, rows);
 
     sendEmail({
       to: email,

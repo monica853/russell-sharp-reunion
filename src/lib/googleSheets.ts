@@ -4,6 +4,15 @@ import { google } from "googleapis";
 // Reads credentials from env vars (see README for how to get these).
 // GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY come straight from
 // the JSON key file Google gives you when you create the service account.
+//
+// The authenticated client is cached at module scope and reused across
+// calls — rebuilding it (a full OAuth handshake) on every single
+// read/write is what made multi-row submissions (one call per household
+// member) slow enough to time out. Serverless functions reuse warm
+// instances between invocations, so this cache often survives across
+// requests too, not just within one.
+let cachedSheetsClient: ReturnType<typeof google.sheets> | null = null;
+
 function getAuth() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const rawKey = process.env.GOOGLE_PRIVATE_KEY;
@@ -21,9 +30,10 @@ function getAuth() {
   });
 }
 
-async function getSheetsClient() {
-  const auth = getAuth();
-  return google.sheets({ version: "v4", auth });
+function getSheetsClient() {
+  if (cachedSheetsClient) return cachedSheetsClient;
+  cachedSheetsClient = google.sheets({ version: "v4", auth: getAuth() });
+  return cachedSheetsClient;
 }
 
 function spreadsheetId() {
@@ -35,7 +45,7 @@ function spreadsheetId() {
 // ── Reads ─────────────────────────────────────────────────────────
 // Returns a 2D array of cell values, e.g. rows[0] is the header row.
 export async function getSheetValues(tabName: string): Promise<string[][]> {
-  const sheets = await getSheetsClient();
+  const sheets = getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: spreadsheetId(),
     range: tabName,
@@ -46,20 +56,29 @@ export async function getSheetValues(tabName: string): Promise<string[][]> {
 
 // ── Writes ────────────────────────────────────────────────────────
 export async function appendRow(tabName: string, values: (string | number)[]): Promise<void> {
-  const sheets = await getSheetsClient();
+  await appendRows(tabName, [values]);
+}
+
+// Appends several rows in a single API call — always prefer this over
+// calling appendRow in a loop, since each call is a separate network
+// round-trip and (before the client-caching above) a separate auth
+// handshake. A household of 5 people is 1 call here instead of 5.
+export async function appendRows(tabName: string, rows: (string | number)[][]): Promise<void> {
+  if (rows.length === 0) return;
+  const sheets = getSheetsClient();
   await sheets.spreadsheets.values.append({
     spreadsheetId: spreadsheetId(),
     range: tabName + "!A1",
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [values] },
+    requestBody: { values: rows },
   });
 }
 
 // rowNumber is 1-indexed and matches the actual sheet row (so a header row
 // means real data starts at rowNumber 2).
 export async function updateCell(tabName: string, cellRef: string, value: string | number): Promise<void> {
-  const sheets = await getSheetsClient();
+  const sheets = getSheetsClient();
   await sheets.spreadsheets.values.update({
     spreadsheetId: spreadsheetId(),
     range: tabName + "!" + cellRef,
