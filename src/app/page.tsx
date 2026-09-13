@@ -104,7 +104,7 @@ export default function Home() {
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-6 right-2 sm:right-6 lg:right-10 font-black text-white/[0.06] leading-none select-none text-[6rem] sm:text-[10rem] lg:text-[13rem]"
+          className="pointer-events-none absolute bottom-4 sm:bottom-6 right-2 sm:right-6 lg:right-10 font-black text-white/[0.06] leading-none select-none text-[5rem] sm:text-[10rem] lg:text-[13rem]"
         >
           2027
         </div>
