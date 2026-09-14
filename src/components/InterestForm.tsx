@@ -21,7 +21,8 @@ const inputClass =
 const labelClass = "block text-xs tracking-wide text-[var(--pearl-dim)] mb-1 font-heading";
 
 export default function InterestForm() {
-  const [members, setMembers] = useState<Member[]>([emptyMember()]);
+  const [primaryName, setPrimaryName] = useState("");
+  const [members, setMembers] = useState<Member[]>([{ ...emptyMember(), relationship: "Self" }]);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -35,14 +36,19 @@ export default function InterestForm() {
     const form = e.currentTarget;
     const data = new FormData(form);
 
+    // The first household member is always the primary contact themself —
+    // keep their name in sync at submit time so it's never blank even if
+    // they never touched that row.
+    const householdMembers = members.map((m, i) => (i === 0 ? { ...m, name: primaryName, relationship: "Self" } : m));
+
     const payload = {
-      primaryName: data.get("primary_name"),
+      primaryName,
       phone: data.get("phone"),
       email: data.get("email"),
       familyBranch: data.get("family_branch"),
       city: data.get("city"),
       state: data.get("state"),
-      householdMembers: members,
+      householdMembers,
       numAdults: data.get("num_adults"),
       numChildren: data.get("num_children"),
       lodgingNeeded: data.get("lodging_needed"),
@@ -61,7 +67,8 @@ export default function InterestForm() {
       if (res.ok) {
         setStatus("success");
         form.reset();
-        setMembers([emptyMember()]);
+        setPrimaryName("");
+        setMembers([{ ...emptyMember(), relationship: "Self" }]);
       } else {
         setErrorMsg(json.error || "Something went wrong. Please try again.");
         setStatus("error");
@@ -90,7 +97,13 @@ export default function InterestForm() {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Full name</label>
-            <input required name="primary_name" className={inputClass} />
+            <input
+              required
+              name="primary_name"
+              className={inputClass}
+              value={primaryName}
+              onChange={(e) => setPrimaryName(e.target.value)}
+            />
           </div>
           <div>
             <label className={labelClass}>Phone number</label>
@@ -123,44 +136,34 @@ export default function InterestForm() {
       <fieldset className="space-y-4">
         <legend className="font-heading text-[var(--gold-bright)] tracking-wide mb-2">Household Members</legend>
         <p className="text-sm text-[var(--pearl-dim)] -mt-2">
-          Include everyone in your household planning to attend, including yourself.
+          You&apos;re automatically included below — just add anyone else in your household planning to attend.
         </p>
 
         <div className="space-y-4">
-          {members.map((m, i) => (
-            <div key={i} className="card-plaque p-4 grid sm:grid-cols-4 gap-3">
-              <div>
-                <label className={labelClass}>Name</label>
-                <input
-                  className={inputClass}
-                  value={m.name}
-                  onChange={(e) => updateMember(i, "name", e.target.value)}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Relationship to you</label>
-                <input
-                  className={inputClass}
-                  value={m.relationship}
-                  onChange={(e) => updateMember(i, "relationship", e.target.value)}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Age group</label>
-                <select
-                  className={inputClass}
-                  value={m.ageGroup}
-                  onChange={(e) => updateMember(i, "ageGroup", e.target.value)}
-                >
-                  <option value="">Select</option>
-                  {AGE_GROUPS.map((g) => (
-                    <option key={g}>{g}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className={labelClass}>T-shirt size</label>
+          {members.map((m, i) =>
+            i === 0 ? (
+              <div key={i} className="card-plaque p-4 grid sm:grid-cols-4 gap-3 border-l-2 border-l-[var(--gold)]">
+                <div className="sm:col-span-2">
+                  <label className={labelClass}>You (Primary Contact)</label>
+                  <div className={`${inputClass} bg-white/[0.02] text-[var(--pearl-dim)] flex items-center min-h-[42px]`}>
+                    {primaryName || "Enter your name above"}
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Your age group</label>
+                  <select
+                    className={inputClass}
+                    value={m.ageGroup}
+                    onChange={(e) => updateMember(i, "ageGroup", e.target.value)}
+                  >
+                    <option value="">Select</option>
+                    {AGE_GROUPS.map((g) => (
+                      <option key={g}>{g}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>Your T-shirt size</label>
                   <select
                     className={inputClass}
                     value={m.tshirtSize}
@@ -172,7 +175,52 @@ export default function InterestForm() {
                     ))}
                   </select>
                 </div>
-                {members.length > 1 && (
+              </div>
+            ) : (
+              <div key={i} className="card-plaque p-4 grid sm:grid-cols-4 gap-3">
+                <div>
+                  <label className={labelClass}>Name</label>
+                  <input
+                    className={inputClass}
+                    value={m.name}
+                    onChange={(e) => updateMember(i, "name", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Relationship to you</label>
+                  <input
+                    className={inputClass}
+                    value={m.relationship}
+                    onChange={(e) => updateMember(i, "relationship", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Age group</label>
+                  <select
+                    className={inputClass}
+                    value={m.ageGroup}
+                    onChange={(e) => updateMember(i, "ageGroup", e.target.value)}
+                  >
+                    <option value="">Select</option>
+                    {AGE_GROUPS.map((g) => (
+                      <option key={g}>{g}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className={labelClass}>T-shirt size</label>
+                    <select
+                      className={inputClass}
+                      value={m.tshirtSize}
+                      onChange={(e) => updateMember(i, "tshirtSize", e.target.value)}
+                    >
+                      <option value="">Select</option>
+                      {SHIRT_SIZES.map((s) => (
+                        <option key={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setMembers((prev) => prev.filter((_, idx) => idx !== i))}
@@ -181,16 +229,16 @@ export default function InterestForm() {
                   >
                     Remove
                   </button>
-                )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
 
         <button
           type="button"
           onClick={() => setMembers((prev) => [...prev, emptyMember()])}
-          className="btn-deco-outline text-sm"
+          className="btn-outline-clean text-sm"
         >
           + Add another household member
         </button>
