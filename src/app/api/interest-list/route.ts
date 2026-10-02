@@ -93,6 +93,8 @@ ${memberLines}
 
 This doesn't complete your official registration, but it helps us plan lodging, activities, transportation, meals, and reunion apparel. We'll be in touch as registration opens.
 
+Our host hotel's group rate is already open for booking — details and the booking link are here: https://www.russellsharpfamily.com/hotel-travel
+
 If anything above looks wrong, just reply to this email and let us know.
 
 Same Roots. New Vibes.

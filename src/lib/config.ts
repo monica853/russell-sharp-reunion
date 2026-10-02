@@ -24,12 +24,16 @@ export const FROM_EMAIL = "updates@russellsharpfamily.com";
 // without needing to check the Google Sheet themselves. Add or remove
 // emails here any time.
 export const ALERT_CC_EMAILS: string[] = [
- 	"shaw0033@gmail.com", 
-	"monicalrussell@gmail.com",
+  "monicalrussell@gmail.com",
+  "shaw0033@gmail.com",
 ];
 
 export const HOTEL = {
-  name: "Aloft Lawrenceville Sugarloaf",
+  name: "Aloft by Marriott Lawrenceville Sugarloaf",
   address: "2110 North Brown Road NW",
   cityStateZip: "Lawrenceville, GA 30043",
+  groupRate: "$134.00 USD per night",
+  bookByDate: "Wednesday, August 4, 2027",
+  bookingUrl:
+    "https://www.marriott.com/event-reservations/reservation-link.mi?id=1790781812723&key=GRP&app=resvlink&_p=c21029cb901c66f3eb0388fe",
 };

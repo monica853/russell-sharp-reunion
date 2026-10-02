@@ -16,6 +16,8 @@ import {
 import Countdown from "@/components/Countdown";
 import OrganizedBy from "@/components/OrganizedBy";
 import { TIMELINE } from "@/lib/timeline";
+import { getSheetValues } from "@/lib/googleSheets";
+import { INTEREST_TAB, INTEREST_COLS } from "@/lib/sheetsSchema";
 
 type SectionLink = { href: string; title: string; body: string; icon: LucideIcon };
 
@@ -56,7 +58,25 @@ function SectionGrid({ items }: { items: SectionLink[] }) {
   );
 }
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  // Live counts pulled straight from the Interest List sheet — "Families"
+  // counts rows marked as the household's primary contact (Relationship =
+  // "Self"), "Family Members" counts every named person on the list.
+  let familiesCount = 0;
+  let membersCount = 0;
+  try {
+    const rows = await getSheetValues(INTEREST_TAB);
+    const dataRows = rows.slice(1);
+    familiesCount = dataRows.filter(
+      (r) => String(r[INTEREST_COLS.relationship] ?? "").trim().toLowerCase() === "self"
+    ).length;
+    membersCount = dataRows.filter((r) => String(r[INTEREST_COLS.personName] ?? "").trim()).length;
+  } catch (err) {
+    console.error("Homepage interest-list count fetch failed:", err);
+  }
+
   return (
     <div>
       {/* Hero — Atlanta skyline stays fixed behind the content as it scrolls */}
@@ -142,8 +162,14 @@ export default function Home() {
             The Russell and Sharp branches are coming together for a full weekend in Atlanta &mdash; reconnecting,
             celebrating, and making new memories that carry the family forward.
           </p>
+          <p className="mt-5 font-heading text-[var(--gold)] tracking-wide">
+            {familiesCount} Families &middot; {membersCount} Family Members &middot; And Counting
+          </p>
+          <p className="mt-2 text-sm text-[var(--pearl-dim)]">
+            Join the interest list to receive updates and help us plan.
+          </p>
           <Link href="/interest-list" className="btn-primary mt-6 inline-flex">
-            Join the Interest List
+            Count My Family In
           </Link>
         </div>
       </section>
