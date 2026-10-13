@@ -1,7 +1,6 @@
 // Names of the tabs (sheets) inside the single Google Sheet used as the
 // site's database. Create these tabs in your sheet with header rows
 // matching the column comments below.
-export const REG_TAB = "Registrations";
 export const INTEREST_TAB = "Interest List";
 export const GATHERINGS_TAB = "Family Gatherings";
 export const CONNECTIONS_TAB = "Family Connections";
@@ -39,16 +38,19 @@ export const INTEREST_COLS = {
   tshirtSize: 14,
 } as const;
 
-// ── Registrations — one row PER ATTENDEE ─────────────────────────────
-// Household-level fields (password, totals, emergency contact, etc.) only
-// live on the row where IsPrimary = TRUE for that household — that's the
-// one row staff edits Amount Paid on. Other attendee rows for the same
-// household leave those columns blank.
-export const REG_COLS = {
-  timestamp: 0,
-  householdEmail: 1,
-  primaryName: 2,
-  isPrimary: 3,
+// ── Household Directory — ONE row per registered household ─────────
+// A: Sheet Name (the name of that household's own invoice tab)
+// B: Primary Name   C: Phone   D: Household Email   E: Password
+// F: Lodging Selection   G: Accommodations
+// H: Emergency Name   I: Emergency Phone
+// J: Total Owed   K: Amount Paid   (both kept up to date by the site)
+// L: City   M: State   N: Notes
+export const DIRECTORY_TAB = "Household Directory";
+export const DIR_COLS = {
+  sheetName: 0,
+  primaryName: 1,
+  phone: 2,
+  householdEmail: 3,
   password: 4,
   lodgingSelection: 5,
   accommodations: 6,
@@ -56,8 +58,34 @@ export const REG_COLS = {
   emergencyPhone: 8,
   totalOwed: 9,
   amountPaid: 10,
-  notes: 11,
-  attendeeName: 12,
-  ageGroup: 13,
-  tshirtSize: 14,
+  city: 11,
+  state: 12,
+  notes: 13,
+  policyAcceptedAt: 14, // O: timestamp the household accepted the Payment, Cancellation & Transfer Policy
 } as const;
+
+// ── Household invoice tabs — one tab per household, named in Directory col A ──
+// Rows 1–5: household summary (written by the site). Row 7: column headers.
+// Row 8 onward: one line per attendee (a charge) or per payment (a credit).
+// A: Date   B: Type ("Attendee Name" or "Payment")   C: Name / Description
+// D: Relationship   E: Age Group   F: T-Shirt Size
+// G: Charges   H: Credits   I: Line Total (running balance)   J: Reference
+export const INV_HEADER_ROW = 7;
+export const INV_FIRST_ROW = 8;
+export const INV_TYPE_ATTENDEE = "Attendee Name";
+export const INV_TYPE_PAYMENT = "Payment";
+export const INV_COLS = {
+  date: 0,
+  type: 1,
+  name: 2,
+  relationship: 3,
+  ageGroup: 4,
+  tshirtSize: 5,
+  charges: 6,
+  credits: 7,
+  lineTotal: 8,
+  reference: 9,
+} as const;
+
+export const AGE_GROUPS = Object.keys(RATE_MAP);
+export const SHIRT_SIZES = ["Youth S", "Youth M", "Youth L", "Adult S", "Adult M", "Adult L", "Adult XL", "Adult 2XL", "Adult 3XL"];

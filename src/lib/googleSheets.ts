@@ -36,6 +36,11 @@ function getSheetsClient() {
   return cachedSheetsClient;
 }
 
+// Tab names with spaces or punctuation must be single-quoted in A1 ranges.
+function q(tabName: string) {
+  return "'" + tabName.replace(/'/g, "''") + "'";
+}
+
 function spreadsheetId() {
   const id = process.env.GOOGLE_SHEET_ID;
   if (!id) throw new Error("Missing GOOGLE_SHEET_ID env var. See README.md for setup steps.");
@@ -48,7 +53,7 @@ export async function getSheetValues(tabName: string): Promise<string[][]> {
   const sheets = getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: spreadsheetId(),
-    range: tabName,
+    range: q(tabName),
     valueRenderOption: "UNFORMATTED_VALUE",
   });
   return (res.data.values as string[][]) || [];
@@ -68,7 +73,7 @@ export async function appendRows(tabName: string, rows: (string | number)[][]): 
   const sheets = getSheetsClient();
   await sheets.spreadsheets.values.append({
     spreadsheetId: spreadsheetId(),
-    range: tabName + "!A1",
+    range: q(tabName) + "!A1",
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
     requestBody: { values: rows },
@@ -81,7 +86,7 @@ export async function updateCell(tabName: string, cellRef: string, value: string
   const sheets = getSheetsClient();
   await sheets.spreadsheets.values.update({
     spreadsheetId: spreadsheetId(),
-    range: tabName + "!" + cellRef,
+    range: q(tabName) + "!" + cellRef,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: [[value]] },
   });
@@ -97,4 +102,93 @@ export function findRowNumber(rows: string[][], columnIndex: number, value: stri
     }
   }
   return null;
+}
+
+// Writes a block of rows starting at a specific cell, e.g. writeRange("Jones", "A8", rows).
+// Strings starting with "=" are entered as formulas.
+export async function writeRange(tabName: string, startCell: string, rows: (string | number)[][]): Promise<void> {
+  if (rows.length === 0) return;
+  const sheets = getSheetsClient();
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: spreadsheetId(),
+    range: q(tabName) + "!" + startCell,
+    valueInputOption: "USER_ENTERED",
+    requestBody: { values: rows },
+  });
+}
+
+export async function listTabTitles(): Promise<string[]> {
+  const sheets = getSheetsClient();
+  const res = await sheets.spreadsheets.get({
+    spreadsheetId: spreadsheetId(),
+    fields: "sheets.properties.title",
+  });
+  return (res.data.sheets ?? []).map((s) => s.properties?.title ?? "");
+}
+
+// Creates a new tab (with simple invoice styling) and returns nothing; throws if the name exists.
+export async function createInvoiceTab(title: string): Promise<void> {
+  const sheets = getSheetsClient();
+  const add = await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: spreadsheetId(),
+    requestBody: { requests: [{ addSheet: { properties: { title, gridProperties: { frozenRowCount: 7 } } } }] },
+  });
+  const sheetId = add.data.replies?.[0]?.addSheet?.properties?.sheetId;
+  if (sheetId == null) return;
+  const money = { numberFormat: { type: "CURRENCY", pattern: "$#,##0.00" } };
+  const widths = [100, 130, 200, 120, 90, 110, 100, 100, 110, 220];
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: spreadsheetId(),
+    requestBody: {
+      requests: [
+        {
+          repeatCell: {
+            range: { sheetId, startRowIndex: 6, endRowIndex: 7, startColumnIndex: 0, endColumnIndex: 10 },
+            cell: {
+              userEnteredFormat: {
+                backgroundColor: { red: 0.64, green: 0.13, blue: 0.1 },
+                textFormat: { bold: true, foregroundColor: { red: 1, green: 1, blue: 1 }, fontSize: 11 },
+              },
+            },
+            fields: "userEnteredFormat(backgroundColor,textFormat)",
+          },
+        },
+        {
+          repeatCell: {
+            range: { sheetId, startRowIndex: 7, startColumnIndex: 6, endColumnIndex: 9 },
+            cell: { userEnteredFormat: money },
+            fields: "userEnteredFormat.numberFormat",
+          },
+        },
+        {
+          repeatCell: {
+            range: { sheetId, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: 1 },
+            cell: { userEnteredFormat: { textFormat: { bold: true, fontSize: 14 } } },
+            fields: "userEnteredFormat.textFormat",
+          },
+        },
+        {
+          repeatCell: {
+            range: { sheetId, startRowIndex: 1, endRowIndex: 4, startColumnIndex: 0, endColumnIndex: 1 },
+            cell: { userEnteredFormat: { textFormat: { bold: true } } },
+            fields: "userEnteredFormat.textFormat",
+          },
+        },
+        {
+          repeatCell: {
+            range: { sheetId, startRowIndex: 3, endRowIndex: 4, startColumnIndex: 1, endColumnIndex: 2 },
+            cell: { userEnteredFormat: { ...money, horizontalAlignment: "LEFT" } },
+            fields: "userEnteredFormat(numberFormat,horizontalAlignment)",
+          },
+        },
+        ...widths.map((w, i) => ({
+          updateDimensionProperties: {
+            range: { sheetId, dimension: "COLUMNS", startIndex: i, endIndex: i + 1 },
+            properties: { pixelSize: w },
+            fields: "pixelSize",
+          },
+        })),
+      ],
+    },
+  });
 }

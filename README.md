@@ -9,7 +9,7 @@ Built with Next.js + Tailwind CSS. Theme: Roaring '20s Atlanta (black, oxblood r
 - `/` — Home: poster, countdown to Sept 3, 2027, section overview, timeline preview
 - `/reunion-details` — Dates, location, theme
 - `/interest-list` — Phase 1 form (live now) — writes to the "Interest List" tab
-- `/register` — Phase 2 form (auto-unlocks when you flip `CURRENT_PHASE`) — writes to "Registrations" and creates a login
+- `/register` — Phase 2 form (auto-unlocks when you flip `CURRENT_PHASE`) — adds the household to "Household Directory", creates its own invoice tab, and creates a login
 - `/my-invoice` — a family logs in with their email + the password they were given at registration, and sees their balance
 - `/family-directory`, `/schedule`, `/hotel-travel` — placeholders that fill in over time
 - `/payments` — full timeline + registration fee table
@@ -23,7 +23,7 @@ This is the only setup required to make the site fully functional. It takes abou
 1. Go to [sheets.google.com](https://sheets.google.com) and create a new blank spreadsheet. Name it something like "Russell-Sharp Reunion Data".
 2. At the bottom, create five tabs (right-click a tab → Duplicate, or the `+` button), named **exactly**:
    - `Interest List`
-   - `Registrations`
+   - `Household Directory`
    - `Family Gatherings`
    - `Family Connections`
    - `Contact Messages`
@@ -32,8 +32,10 @@ This is the only setup required to make the site fully functional. It takes abou
    **Interest List** (A through O) — **one row per person**, not per household. Every member of a household repeats that household's shared info (email, phone, etc.) on their own row — this is what lets you filter or sort by age group or T-shirt size directly in the sheet, and see everyone in a household by filtering on Household Email:
    `Timestamp | Household Email | Primary Contact Name | Phone | Family Branch | City | State | Lodging Needed | Num Rooms Needed | Accessibility/Dietary | Activities Interest | Person Name | Relationship to Primary | Age Group | T-Shirt Size`
 
-   **Registrations** (A through O) — **one row per attendee**. Household-level fields (password, totals, emergency contact) only ever appear on the row where **Is Primary** is `TRUE` for that household — that's the one row to edit when a payment comes in. Other attendees in the same household have their own row with just their name/age/size filled in and the household-level columns left blank:
-   `Timestamp | Household Email | Primary Name | Is Primary | Password | Lodging Selection | Accommodations | Emergency Name | Emergency Phone | Total Owed | Amount Paid | Notes | Attendee Name | Age Group | T-Shirt Size`
+   **Household Directory** (A through O) — **one row per household**. The site fills this in when a family registers and keeps Total Owed / Amount Paid up to date:
+   `Sheet Name | Primary Name | Phone | Household Email | Password | Lodging Selection | Accommodations | Emergency Name | Emergency Phone | Total Owed | Amount Paid | City | State | Notes | Policy Accepted At`
+
+   **Household invoice tabs** — you do NOT create these. When a household registers, the site creates a tab named after them (the name appears in Directory column A). Row 7 holds the headers and row 8 onward the lines: `Date | Type | Description | Relationship | Age Group | T-Shirt Size | Charges | Credits | Line Total | Reference`. Attendees are "Attendee Name" lines (a charge); payments are "Payment" lines (a credit).
 
    **Family Gatherings** (A through M):
    `Timestamp | Event Name | Host Name | Date/Time | Location | Description | Invited | Cost | RSVP Deadline | RSVP Contact | Status | Submitter Email | Submitter Phone`
@@ -116,9 +118,9 @@ This is two separate pieces sharing one address (`updates@russellsharpfamily.com
 
 **Once both are done:** Interest List and Registration submissions automatically email the person who submitted, and CC everyone listed in `ALERT_CC_EMAILS` in `src/lib/config.ts` (add your own email and anyone else who should be notified — it's empty by default). Family Gatherings submissions notify that same list so someone knows to review them, and the Contact form emails that list directly.
 
-### 7. Updating a family's balance
+### 7. Payments and balances
 
-Payments aren't collected online yet — when a family pays you by check, Zelle, cash, etc., open the Google Sheet, find that household's row on the **Registrations** tab where **Is Primary** is `TRUE`, and update the **Amount Paid** column (column K) directly. Their `/my-invoice` page reflects it immediately. Other rows for the same household (extra attendees) don't need anything changed.
+Card payments run through Square and are recorded automatically on the household's invoice tab (a "Payment" line) and in Household Directory column K. For a check, Zelle or cash payment, open that household's tab and add a row at the bottom: Type `Payment`, Description `Check` (etc.), amount in **Credits** (column H), and copy the Line Total formula down from the row above. Then update **Amount Paid** (column K) on their Household Directory row. Families can also log in at `/my-invoice` to view their invoice, add attendees, change T-shirt sizes and change their password.
 
 ### 8. Reviewing Family Gatherings submissions
 

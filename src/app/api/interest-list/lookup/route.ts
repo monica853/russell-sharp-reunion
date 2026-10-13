@@ -25,12 +25,16 @@ export async function GET(req: NextRequest) {
       .filter((r) => String(r[INTEREST_COLS.personName] ?? "").trim())
       .map((r) => ({
         name: String(r[INTEREST_COLS.personName] ?? ""),
+        relationship: String(r[INTEREST_COLS.relationship] ?? ""),
         ageGroup: String(r[INTEREST_COLS.ageGroup] ?? ""),
         tshirtSize: String(r[INTEREST_COLS.tshirtSize] ?? ""),
       }));
 
     return NextResponse.json({
       primaryName: String(first[INTEREST_COLS.primaryName] ?? ""),
+      phone: String(first[INTEREST_COLS.phone] ?? ""),
+      city: String(first[INTEREST_COLS.city] ?? ""),
+      state: String(first[INTEREST_COLS.state] ?? ""),
       lodgingNeeded: String(first[INTEREST_COLS.lodgingNeeded] ?? ""),
       members,
     });

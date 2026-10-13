@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import PaymentPolicy from "@/components/PaymentPolicy";
 
-type Attendee = { name: string; ageGroup: string; tshirtSize: string };
+type Attendee = { name: string; relationship: string; ageGroup: string; tshirtSize: string };
 
 const RATES: Record<string, number> = {
   "75+": 95,
@@ -20,17 +21,23 @@ const inputClass =
 const labelClass = "block text-xs tracking-wide text-[var(--pearl-dim)] mb-1 font-heading";
 
 function emptyAttendee(): Attendee {
-  return { name: "", ageGroup: "", tshirtSize: "" };
+  return { name: "", relationship: "", ageGroup: "", tshirtSize: "" };
 }
 
 export default function RegisterForm() {
-  const [attendees, setAttendees] = useState<Attendee[]>([emptyAttendee()]);
+  const [attendees, setAttendees] = useState<Attendee[]>([{ ...emptyAttendee(), relationship: "Self" }]);
+  const [accepted, setAccepted] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [generatedPassword, setGeneratedPassword] = useState("");
 
   const [primaryName, setPrimaryName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   const [lookupEmail, setLookupEmail] = useState("");
   const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "error">("idle");
   const [lookupError, setLookupError] = useState("");
@@ -45,10 +52,14 @@ export default function RegisterForm() {
       if (res.ok) {
         setPrimaryName(json.primaryName || "");
         setEmail(lookupEmail);
+        setPhone(json.phone || "");
+        setCity(json.city || "");
+        setState(json.state || "");
         if (Array.isArray(json.members) && json.members.length > 0) {
           setAttendees(
-            json.members.map((m: Attendee) => ({
+            json.members.map((m: Attendee, i: number) => ({
               name: m.name || "",
+              relationship: i === 0 ? "Self" : m.relationship || "",
               ageGroup: m.ageGroup || "",
               tshirtSize: m.tshirtSize || "",
             }))
@@ -85,11 +96,17 @@ export default function RegisterForm() {
     const payload = {
       primaryName: data.get("primary_name"),
       email: data.get("email"),
+      acceptedPolicy: accepted,
+      phone,
+      city,
+      state,
       emergencyName: data.get("emergency_name"),
       emergencyPhone: data.get("emergency_phone"),
       lodgingSelection: data.get("lodging_selection"),
       accommodations: data.get("accommodations"),
-      attendees,
+      attendees: attendees.map((a, i) =>
+        i === 0 ? { ...a, name: a.name || String(data.get("primary_name") || ""), relationship: "Self" } : a
+      ),
     };
 
     try {
@@ -103,7 +120,11 @@ export default function RegisterForm() {
         setGeneratedPassword(json.password || "");
         setStatus("success");
         form.reset();
-        setAttendees([emptyAttendee()]);
+        setAttendees([{ ...emptyAttendee(), relationship: "Self" }]);
+        setAccepted(false);
+        setPhone("");
+        setCity("");
+        setState("");
         setPrimaryName("");
         setEmail("");
       } else {
@@ -116,13 +137,38 @@ export default function RegisterForm() {
     }
   }
 
+  async function handlePayDeposit() {
+    setPaying(true);
+    setPayError("");
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const json = await res.json();
+      if (res.ok && json.url) {
+        window.location.href = json.url;
+        return;
+      }
+      setPayError(json.error || "Could not start payment. You can pay from My Invoice.");
+    } catch {
+      setPayError("Could not start payment. You can pay from My Invoice.");
+    }
+    setPaying(false);
+  }
+
   if (status === "success") {
     return (
       <div className="card-plaque p-8 text-center space-y-4">
         <p className="font-heading text-[var(--gold-bright)] text-xl mb-2">You&apos;re registered!</p>
         <p className="text-[var(--pearl-dim)]">
-          We&apos;ve recorded your household and the $25 deposit toward your total.
+          We&apos;ve recorded your household. Pay your $25 deposit now to lock in your spot.
         </p>
+        <button type="button" onClick={handlePayDeposit} disabled={paying} className="btn-primary inline-block disabled:opacity-60">
+          {paying ? "Opening secure checkout…" : "Pay $25 Deposit"}
+        </button>
+        {payError && <p className="text-[var(--oxblood)] text-sm">{payError}</p>}
         <div className="bg-[var(--ink)] border border-[var(--gold)] p-4 inline-block">
           <p className="text-xs tracking-wide text-[var(--pearl-dim)] mb-1 font-heading">YOUR INVOICE PASSWORD</p>
           <p className="font-heading text-2xl text-[var(--gold-bright)] tracking-widest">{generatedPassword}</p>
@@ -189,6 +235,20 @@ export default function RegisterForm() {
             />
           </div>
           <div>
+            <label className={labelClass}>Phone</label>
+            <input required name="phone" type="tel" className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>City</label>
+              <input required name="city" className={inputClass} value={city} onChange={(e) => setCity(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelClass}>State</label>
+              <input required name="state" className={inputClass} value={state} onChange={(e) => setState(e.target.value)} />
+            </div>
+          </div>
+          <div>
             <label className={labelClass}>Emergency contact name</label>
             <input required name="emergency_name" className={inputClass} />
           </div>
@@ -203,10 +263,19 @@ export default function RegisterForm() {
         <legend className="font-heading text-[var(--gold-bright)] tracking-wide mb-2">Attendees</legend>
         <div className="space-y-4">
           {attendees.map((a, i) => (
-            <div key={i} className="card-plaque p-4 grid sm:grid-cols-4 gap-3 items-end">
+            <div key={i} className="card-plaque p-4 grid sm:grid-cols-5 gap-3 items-end">
               <div>
                 <label className={labelClass}>Name</label>
                 <input className={inputClass} value={a.name} onChange={(e) => update(i, "name", e.target.value)} />
+              </div>
+              <div>
+                <label className={labelClass}>Relationship to you</label>
+                <input
+                  className={inputClass}
+                  value={i === 0 ? "Self" : a.relationship}
+                  disabled={i === 0}
+                  onChange={(e) => update(i, "relationship", e.target.value)}
+                />
               </div>
               <div>
                 <label className={labelClass}>Age group</label>
@@ -230,7 +299,7 @@ export default function RegisterForm() {
                 <span className="text-[var(--gold-bright)] font-heading text-sm">
                   {a.ageGroup ? `$${RATES[a.ageGroup]}` : "—"}
                 </span>
-                {attendees.length > 1 && (
+                {i > 0 && (
                   <button
                     type="button"
                     onClick={() => setAttendees((prev) => prev.filter((_, idx) => idx !== i))}
@@ -287,6 +356,21 @@ export default function RegisterForm() {
           At least 50% of the total is due by March 31, 2027. The remaining balance is due in full by June 30, 2027.
         </p>
       </div>
+
+      <fieldset className="space-y-3">
+        <legend className="font-heading text-[var(--gold-bright)] tracking-wide mb-2">Payment Policy</legend>
+        <PaymentPolicy />
+        <label className="flex items-start gap-3 text-sm text-[var(--pearl)] cursor-pointer">
+          <input
+            type="checkbox"
+            required
+            checked={accepted}
+            onChange={(e) => setAccepted(e.target.checked)}
+            className="mt-1 h-4 w-4"
+          />
+          <span>I have read and accept the Payment, Cancellation &amp; Transfer Policy.</span>
+        </label>
+      </fieldset>
 
       <div className="text-center pt-2">
         <button type="submit" disabled={status === "submitting"} className="btn-deco disabled:opacity-60">

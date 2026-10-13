@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSheetValues, appendRows } from "@/lib/googleSheets";
+import { appendRow } from "@/lib/googleSheets";
 import { signSession, SESSION_COOKIE } from "@/lib/auth";
-import { REG_TAB, REG_COLS, RATE_MAP } from "@/lib/sheetsSchema";
+import { DIRECTORY_TAB, RATE_MAP, INV_TYPE_ATTENDEE } from "@/lib/sheetsSchema";
+import { findHousehold, uniqueTabName, createHouseholdTab, writeInvoiceLines } from "@/lib/households";
 import { sendEmail, alertCcList } from "@/lib/email";
 
-type Attendee = { name?: string; ageGroup?: string; tshirtSize?: string };
+type Attendee = { name?: string; relationship?: string; ageGroup?: string; tshirtSize?: string };
 
 function generatePassword(): string {
   // Short, easy to read over the phone: e.g. "PEACH482"
@@ -21,6 +22,10 @@ export async function POST(req: NextRequest) {
     const {
       primaryName,
       email,
+      acceptedPolicy,
+      phone,
+      city,
+      state,
       emergencyName,
       emergencyPhone,
       lodgingSelection,
@@ -32,13 +37,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name and email are required." }, { status: 400 });
     }
 
+    if (acceptedPolicy !== true) {
+      return NextResponse.json(
+        { error: "Please accept the Payment, Cancellation & Transfer Policy to register." },
+        { status: 400 }
+      );
+    }
+
     // Prevent duplicate households on the same email.
-    const existingRows = await getSheetValues(REG_TAB).catch(() => [] as string[][]);
-    const target = String(email).trim().toLowerCase();
-    const alreadyExists = existingRows
-      .slice(1)
-      .some((r) => String(r[REG_COLS.householdEmail] ?? "").trim().toLowerCase() === target);
-    if (alreadyExists) {
+    if (await findHousehold(String(email))) {
       return NextResponse.json(
         { error: "A registration already exists for that email. Please log in instead." },
         { status: 409 }
@@ -48,48 +55,41 @@ export async function POST(req: NextRequest) {
     const list: Attendee[] = Array.isArray(attendees) && attendees.length > 0 ? attendees : [{}];
     const total = list.reduce((sum, a) => sum + (RATE_MAP[a.ageGroup || ""] ?? 0), 0);
     const password = generatePassword();
-    const timestamp = new Date().toISOString();
+    const cleanEmail = String(email).trim().toLowerCase();
 
-    // First row (the "primary" row) carries every household-level field —
-    // this is the one row staff edits when a payment comes in. Every
-    // attendee row is written in a single batched call.
-    const rows: (string | number)[][] = [
-      [
-        timestamp,
-        email,
-        primaryName,
-        "TRUE", // IsPrimary
-        password,
-        lodgingSelection || "",
-        accommodations || "",
-        emergencyName || "",
-        emergencyPhone || "",
-        total, // TotalOwed
-        25, // AmountPaid — the $25 deposit; staff updates this as further payments come in
-        "", // Notes
-        list[0].name || "",
-        list[0].ageGroup || "",
-        list[0].tshirtSize || "",
-      ],
-      ...list.slice(1).map((a) => [
-        timestamp,
-        email,
-        primaryName,
-        "FALSE",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        a.name || "",
-        a.ageGroup || "",
-        a.tshirtSize || "",
-      ]),
-    ];
-    await appendRows(REG_TAB, rows);
+    // 1) Give the household its own invoice tab and write one charge line per attendee.
+    const sheetName = await uniqueTabName(String(primaryName));
+    await createHouseholdTab(sheetName, String(primaryName), cleanEmail);
+    await writeInvoiceLines(
+      sheetName,
+      list.map((a, i) => ({
+        type: INV_TYPE_ATTENDEE,
+        name: a.name || "",
+        relationship: i === 0 ? a.relationship || "Self" : a.relationship || "",
+        ageGroup: a.ageGroup || "",
+        tshirtSize: a.tshirtSize || "",
+        charges: RATE_MAP[a.ageGroup || ""] ?? 0,
+      }))
+    );
+
+    // 2) Add the household to the Household Directory (one row per household).
+    await appendRow(DIRECTORY_TAB, [
+      sheetName,
+      primaryName,
+      phone || "",
+      cleanEmail,
+      password,
+      lodgingSelection || "",
+      accommodations || "",
+      emergencyName || "",
+      emergencyPhone || "",
+      total, // Total Owed
+      0, // Amount Paid — updated automatically when Square confirms a payment
+      city || "",
+      state || "",
+      "", // Notes
+      new Date().toISOString(), // Policy accepted at
+    ]);
 
     const attendeeLines = list
       .map((a) => {
@@ -114,8 +114,7 @@ Attendees:
 ${attendeeLines}
 
 Household total: $${total.toFixed(2)}
-Deposit paid today: $25.00
-Remaining balance: $${Math.max(0, total - 25).toFixed(2)}
+Registration deposit: $25.00 (pay securely online at russellsharpfamily.com/my-invoice if you haven't already)
 
 Lodging selection: ${lodgingSelection || "—"}
 Special accommodations: ${accommodations || "—"}
@@ -125,7 +124,7 @@ Your invoice login (save this for your records):
   Email: ${email}
   Password: ${password}
 
-Use these anytime at russellsharpfamily.com/my-invoice to check your balance. At least 50% of the total is due by March 31, 2027, with the remaining balance due by June 30, 2027.
+Use these anytime at russellsharpfamily.com/my-invoice to see your invoice, make payments, add attendees, update T-shirt sizes, and change your password. At least 50% of the total is due by March 31, 2027, with the remaining balance due by June 30, 2027.
 
 If anything above looks wrong, just reply to this email and let us know.
 
@@ -133,7 +132,7 @@ Same Roots. New Vibes.
 — Russell–Sharp Family Reunion`,
     });
 
-    const token = signSession({ householdId: email, name: primaryName });
+    const token = signSession({ householdId: cleanEmail, name: primaryName });
     const res = NextResponse.json({ success: true, password, total });
     res.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,
