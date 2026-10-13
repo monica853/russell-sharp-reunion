@@ -8,7 +8,7 @@
 //   2 = Registration & Deposit (opens after Phase 1)
 //   3 = Lodging & Final Selections (early 2027)
 //   4 = Final Reunion Information (Jul–Aug 2027)
-export const CURRENT_PHASE: 1 | 2 | 3 | 4 = 2;
+export const CURRENT_PHASE: 1 | 2 | 3 | 4 = 1;
 
 export const REUNION_DATE = "2027-09-03T09:00:00-04:00";
 
@@ -24,8 +24,8 @@ export const FROM_EMAIL = "updates@russellsharpfamily.com";
 // without needing to check the Google Sheet themselves. Add or remove
 // emails here any time.
 export const ALERT_CC_EMAILS: string[] = [
-"shaw0033@gmail.com",
-  "monicalrussell@gmail.com",
+  // "monicalrussell@gmail.com",
+  // "shaw0033@gmail.com,
 ];
 
 export const HOTEL = {

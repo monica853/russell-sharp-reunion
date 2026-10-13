@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSheetValues, writeRange, updateCell, createInvoiceTab, listTabTitles } from "@/lib/googleSheets";
+import { sendEmail, alertCcList } from "@/lib/email";
 import { verifySession, SESSION_COOKIE } from "@/lib/auth";
 import {
   DIRECTORY_TAB,
   DIR_COLS,
+  DIR_FIRST_ROW,
   INV_COLS,
   INV_FIRST_ROW,
   INV_HEADER_ROW,
@@ -40,7 +42,7 @@ export function today(): string {
 export async function findHousehold(email: string): Promise<Household | null> {
   const rows = await getSheetValues(DIRECTORY_TAB).catch(() => [] as string[][]);
   const target = email.trim().toLowerCase();
-  for (let i = 1; i < rows.length; i++) {
+  for (let i = DIR_FIRST_ROW - 1; i < rows.length; i++) {
     if (String(rows[i][DIR_COLS.householdEmail] ?? "").trim().toLowerCase() === target) {
       return {
         dirRowNum: i + 1,
@@ -62,6 +64,43 @@ export async function requireHousehold(req: NextRequest): Promise<Household | Ne
   const h = await findHousehold(session.householdId);
   if (!h || !h.sheetName) return NextResponse.json({ error: "We couldn't find your registration." }, { status: 404 });
   return h;
+}
+
+// Adds a household to the Directory at the first free row (never above row 3).
+export async function appendDirectoryRow(values: (string | number)[]): Promise<void> {
+  const rows = await getSheetValues(DIRECTORY_TAB).catch(() => [] as string[][]);
+  const next = Math.max(rows.length + 1, DIR_FIRST_ROW);
+  await writeRange(DIRECTORY_TAB, `A${next}`, [values]);
+}
+
+// Records one payment (idempotent by Square payment ID): adds a "Payment" line
+// to the household's invoice tab, refreshes Directory totals, emails a receipt.
+// Returns true if newly recorded, false if it was already recorded.
+export async function recordPayment(h: Household, paymentId: string, amount: number): Promise<boolean> {
+  const before = await loadInvoice(h.sheetName);
+  if (before.some((l) => l.reference === paymentId)) return false;
+  const lines = await appendInvoiceLines(h, [
+    { type: INV_TYPE_PAYMENT, name: "Square payment", credits: amount, reference: paymentId },
+  ]);
+  const { totalOwed, amountPaid, balance } = totals(lines);
+  await sendEmail({
+    to: h.email,
+    cc: alertCcList(),
+    subject: "Payment received — Russell–Sharp Family Reunion",
+    text: `Hi ${h.name},
+
+We received your payment of $${amount.toFixed(2)}. Thank you!
+
+Household total: $${totalOwed.toFixed(2)}
+Paid to date: $${amountPaid.toFixed(2)}
+Remaining balance: $${balance.toFixed(2)}
+
+You can check your balance or make another payment anytime at russellsharpfamily.com/my-invoice.
+
+Same Roots. New Vibes.
+— Russell–Sharp Family Reunion`,
+  });
+  return true;
 }
 
 export async function loadInvoice(sheetName: string): Promise<InvoiceLine[]> {

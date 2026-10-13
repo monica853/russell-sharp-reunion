@@ -81,8 +81,17 @@ export default function MyInvoiceClient() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load on mount
     loadInvoice();
-    if (new URLSearchParams(window.location.search).get("paid") === "1") {
+    const qs = new URLSearchParams(window.location.search);
+    if (qs.get("paid") === "1") {
       setJustPaid(true);
+      // Square adds the order ID to the return link; confirm it directly so the
+      // payment is recorded even if the webhook is slow or misconfigured.
+      const orderId = qs.get("orderId") || qs.get("transactionId");
+      if (orderId) {
+        post("/api/checkout/confirm", { orderId })
+          .then(() => loadInvoice())
+          .catch(() => {});
+      }
       // The payment is recorded by Square's webhook a moment after checkout; refresh a couple of times.
       setTimeout(loadInvoice, 4000);
       setTimeout(loadInvoice, 10000);

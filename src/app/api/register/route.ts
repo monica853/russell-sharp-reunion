@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { appendRow } from "@/lib/googleSheets";
 import { signSession, SESSION_COOKIE } from "@/lib/auth";
-import { DIRECTORY_TAB, RATE_MAP, INV_TYPE_ATTENDEE } from "@/lib/sheetsSchema";
-import { findHousehold, uniqueTabName, createHouseholdTab, writeInvoiceLines } from "@/lib/households";
+import { RATE_MAP, INV_TYPE_ATTENDEE } from "@/lib/sheetsSchema";
+import { findHousehold, uniqueTabName, createHouseholdTab, writeInvoiceLines, appendDirectoryRow } from "@/lib/households";
 import { sendEmail, alertCcList } from "@/lib/email";
 
 type Attendee = { name?: string; relationship?: string; ageGroup?: string; tshirtSize?: string };
@@ -73,7 +72,7 @@ export async function POST(req: NextRequest) {
     );
 
     // 2) Add the household to the Household Directory (one row per household).
-    await appendRow(DIRECTORY_TAB, [
+    await appendDirectoryRow([
       sheetName,
       primaryName,
       phone || "",

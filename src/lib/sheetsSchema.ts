@@ -46,6 +46,8 @@ export const INTEREST_COLS = {
 // J: Total Owed   K: Amount Paid   (both kept up to date by the site)
 // L: City   M: State   N: Notes
 export const DIRECTORY_TAB = "Household Directory";
+// Rows 1–2 are titles/headers; household data starts on row 3.
+export const DIR_FIRST_ROW = 3;
 export const DIR_COLS = {
   sheetName: 0,
   primaryName: 1,
