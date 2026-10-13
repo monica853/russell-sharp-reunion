@@ -8,7 +8,7 @@
 //   2 = Registration & Deposit (opens after Phase 1)
 //   3 = Lodging & Final Selections (early 2027)
 //   4 = Final Reunion Information (Jul–Aug 2027)
-export const CURRENT_PHASE: 1 | 2 | 3 | 4 = 1;
+export const CURRENT_PHASE: 1 | 2 | 3 | 4 = 2;
 
 export const REUNION_DATE = "2027-09-03T09:00:00-04:00";
 
