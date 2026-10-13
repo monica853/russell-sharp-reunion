@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CURRENT_PHASE } from "@/lib/config";
 
 export default function Footer() {
   return (
@@ -20,7 +21,13 @@ export default function Footer() {
         <div>
           <p className="font-semibold text-white mb-2">Get Involved</p>
           <ul className="space-y-1 text-[var(--pearl-dim)]">
-            <li><Link className="hover:text-white transition-colors" href="/interest-list">Join the Interest List</Link></li>
+            <li>
+              {CURRENT_PHASE >= 2 ? (
+                <Link className="hover:text-white transition-colors" href="/register">Register Now</Link>
+              ) : (
+                <Link className="hover:text-white transition-colors" href="/interest-list">Join the Interest List</Link>
+              )}
+            </li>
             <li><Link className="hover:text-white transition-colors" href="/register">Register Your Household</Link></li>
             <li><Link className="hover:text-white transition-colors" href="/updates">Family Updates</Link></li>
           </ul>

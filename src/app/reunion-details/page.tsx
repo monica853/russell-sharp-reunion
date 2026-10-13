@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CURRENT_PHASE } from "@/lib/config";
 import PageHero from "@/components/PageHero";
 
 export const metadata = {
@@ -55,8 +56,8 @@ export default function ReunionDetailsPage() {
         </p>
 
         <div className="text-center">
-          <Link href="/interest-list" className="btn-deco">
-            Join the Interest List
+          <Link href={CURRENT_PHASE >= 2 ? "/register" : "/interest-list"} className="btn-deco">
+            {CURRENT_PHASE >= 2 ? "Register Now" : "Join the Interest List"}
           </Link>
         </div>
       </section>

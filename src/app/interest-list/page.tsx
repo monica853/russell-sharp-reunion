@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { CURRENT_PHASE } from "@/lib/config";
 import PageHero from "@/components/PageHero";
 import InterestForm from "@/components/InterestForm";
 
@@ -20,6 +22,16 @@ export default function InterestListPage() {
           Joining the interest list helps us plan lodging, activities, transportation, meals, and reunion apparel.
           It does not complete your official registration &mdash; registration opens in a later phase, and we&apos;ll
           let you know as soon as it does.
+          {CURRENT_PHASE >= 2 && (
+            <>
+              {" "}
+              <strong>Registration is now open</strong> &mdash;{" "}
+              <Link href="/register" className="underline text-[var(--gold-bright)]">
+                register your household here
+              </Link>
+              .
+            </>
+          )}
         </p>
         <InterestForm />
       </section>

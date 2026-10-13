@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { CURRENT_PHASE } from "@/lib/config";
 
 const SITE_URL = "https://russellsharpfamily.com";
 const OG_IMAGE = "/images/og-image.png";
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        <Navbar />
+        <Navbar registrationOpen={CURRENT_PHASE >= 2} />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

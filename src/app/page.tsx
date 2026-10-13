@@ -16,6 +16,7 @@ import {
 import Countdown from "@/components/Countdown";
 import OrganizedBy from "@/components/OrganizedBy";
 import { TIMELINE } from "@/lib/timeline";
+import { CURRENT_PHASE } from "@/lib/config";
 import { getSheetValues } from "@/lib/googleSheets";
 import { INTEREST_TAB, INTEREST_COLS } from "@/lib/sheetsSchema";
 
@@ -61,6 +62,7 @@ function SectionGrid({ items }: { items: SectionLink[] }) {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const registrationOpen = CURRENT_PHASE >= 2;
   // Live counts pulled straight from the Interest List sheet — "Families"
   // counts rows marked as the household's primary contact (Relationship =
   // "Self"), "Family Members" counts every named person on the list.
@@ -103,15 +105,17 @@ export default async function Home() {
             </p>
 
             <div className="mt-9 flex flex-wrap gap-4">
-              <Link href="/interest-list" className="btn-primary">
-                Join the Interest List
+              <Link href={registrationOpen ? "/register" : "/interest-list"} className="btn-primary">
+                {registrationOpen ? "Register Now" : "Join the Interest List"}
               </Link>
               <Link href="/reunion-details" className="btn-outline-clean">
                 Reunion Details
               </Link>
             </div>
             <p className="mt-4 text-sm text-[var(--pearl-dim)] max-w-sm">
-              No payment required at this stage &mdash; joining the list simply helps us plan lodging, activities, and reunion apparel.
+              {registrationOpen
+                ? "Registration is open \u2014 register your household and pay your $25 deposit to hold your family\u2019s spot."
+                : "No payment required at this stage \u2014 joining the list simply helps us plan lodging, activities, and reunion apparel."}
             </p>
           </div>
 
@@ -166,10 +170,12 @@ export default async function Home() {
             {familiesCount} Families &middot; {membersCount} Family Members &middot; And Counting
           </p>
           <p className="mt-2 text-sm text-[var(--pearl-dim)]">
-            Join the interest list to receive updates and help us plan.
+            {registrationOpen
+              ? "Register your household to hold your spot and receive updates."
+              : "Join the interest list to receive updates and help us plan."}
           </p>
-          <Link href="/interest-list" className="btn-primary mt-6 inline-flex">
-            Count My Family In
+          <Link href={registrationOpen ? "/register" : "/interest-list"} className="btn-primary mt-6 inline-flex">
+            {registrationOpen ? "Register My Family" : "Count My Family In"}
           </Link>
         </div>
       </section>
@@ -188,7 +194,13 @@ export default async function Home() {
         <div className="space-y-10">
           <div>
             <p className="text-xs tracking-[0.15em] text-[var(--gold)] font-semibold mb-4">REUNION 2027</p>
-            <SectionGrid items={REUNION_SECTIONS} />
+            <SectionGrid
+              items={REUNION_SECTIONS.map((s) =>
+                registrationOpen && s.href === "/register"
+                  ? { ...s, title: "Register Now", body: "Sign up your household and pay your $25 deposit." }
+                  : s
+              )}
+            />
           </div>
           <div className="h-px bg-[var(--gold-dark)]/40" />
           <div>

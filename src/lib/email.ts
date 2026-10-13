@@ -38,5 +38,5 @@ export async function sendEmail(opts: {
 }
 
 export function alertCcList(): string[] {
-  return ALERT_CC_EMAILS.filter(Boolean);
+  return [...new Set(ALERT_CC_EMAILS.filter(Boolean).map((e) => e.trim().toLowerCase()))];
 }

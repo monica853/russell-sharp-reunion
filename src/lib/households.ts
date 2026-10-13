@@ -40,7 +40,11 @@ export function today(): string {
 }
 
 export async function findHousehold(email: string): Promise<Household | null> {
-  const rows = await getSheetValues(DIRECTORY_TAB).catch(() => [] as string[][]);
+  const rows = await getSheetValues(DIRECTORY_TAB).catch((err) => {
+    // Don't hide setup problems (wrong tab name, sheet not shared, etc.) — they look like "not found" otherwise.
+    console.error(`Could not read the "${DIRECTORY_TAB}" tab:`, err);
+    return [] as string[][];
+  });
   const target = email.trim().toLowerCase();
   for (let i = DIR_FIRST_ROW - 1; i < rows.length; i++) {
     if (String(rows[i][DIR_COLS.householdEmail] ?? "").trim().toLowerCase() === target) {
@@ -103,6 +107,15 @@ Same Roots. New Vibes.
   return true;
 }
 
+// Google Sheets returns dates as serial numbers (e.g. 46308) when read unformatted.
+function formatSheetDate(v: unknown): string {
+  if (typeof v === "number" && v > 20000 && v < 100000) {
+    const d = new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000);
+    return d.toLocaleDateString("en-US", { timeZone: "UTC" });
+  }
+  return String(v ?? "");
+}
+
 export async function loadInvoice(sheetName: string): Promise<InvoiceLine[]> {
   const rows = await getSheetValues(sheetName);
   const lines: InvoiceLine[] = [];
@@ -112,7 +125,7 @@ export async function loadInvoice(sheetName: string): Promise<InvoiceLine[]> {
     if (!type) continue;
     lines.push({
       rowNum: i + 1,
-      date: String(r[INV_COLS.date] ?? ""),
+      date: formatSheetDate(r[INV_COLS.date]),
       type,
       name: String(r[INV_COLS.name] ?? ""),
       relationship: String(r[INV_COLS.relationship] ?? ""),

@@ -41,7 +41,7 @@ const DRAWER_GROUPS: { label: string; links: NavLink[] }[] = [
   },
 ];
 
-export default function Navbar() {
+export default function Navbar({ registrationOpen = false }: { registrationOpen?: boolean }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -80,8 +80,11 @@ export default function Navbar() {
 
           <div className="flex items-center gap-3 shrink-0">
             <div className="hidden sm:block">
-              <Link href="/interest-list" className="btn-primary text-sm !py-2 !px-4">
-                Join the Interest List
+              <Link
+                href={registrationOpen ? "/register" : "/interest-list"}
+                className="btn-primary text-sm !py-2 !px-4"
+              >
+                {registrationOpen ? "Register Now" : "Join the Interest List"}
               </Link>
             </div>
 
