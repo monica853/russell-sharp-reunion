@@ -5,6 +5,10 @@ import { DIRECTORY_TAB, DIR_COLS } from "@/lib/sheetsSchema";
 import { requireHousehold, loadInvoice, totals } from "@/lib/households";
 import { squareFetch, SITE_URL, DEPOSIT_AMOUNT } from "@/lib/square";
 
+function looksLikeEmail(e: string) {
+  return /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e) && !/\.(con|vom|cmo|ocm|comm|cim)$/i.test(e);
+}
+
 export async function POST(req: NextRequest) {
   try {
     const h = await requireHousehold(req);
@@ -39,9 +43,8 @@ export async function POST(req: NextRequest) {
     if (!locationId) throw new Error("Missing SQUARE_LOCATION_ID env var.");
 
     const isDeposit = amountPaid === 0 && totalOwed > 0;
-    const data = await squareFetch("/v2/online-checkout/payment-links", {
-      method: "POST",
-      body: JSON.stringify({
+    const makeBody = (withEmail: boolean) =>
+      JSON.stringify({
         idempotency_key: crypto.randomUUID(),
         order: {
           location_id: locationId,
@@ -59,9 +62,21 @@ export async function POST(req: NextRequest) {
           ],
         },
         checkout_options: { redirect_url: `${SITE_URL}/my-invoice?paid=1` },
-        pre_populated_data: { buyer_email: target },
-      }),
-    });
+        // Pre-filling the buyer's email is only a convenience; skip it if it looks wrong.
+        ...(withEmail ? { pre_populated_data: { buyer_email: target } } : {}),
+      });
+
+    let data;
+    try {
+      data = await squareFetch("/v2/online-checkout/payment-links", { method: "POST", body: makeBody(looksLikeEmail(target)) });
+    } catch (err) {
+      // A bad email on file must never block a payment — retry without pre-filling it.
+      if (String((err as { hint?: string }).hint ?? "").includes("INVALID_EMAIL_ADDRESS")) {
+        data = await squareFetch("/v2/online-checkout/payment-links", { method: "POST", body: makeBody(false) });
+      } else {
+        throw err;
+      }
+    }
 
     return NextResponse.json({ url: data.payment_link?.url });
   } catch (err) {

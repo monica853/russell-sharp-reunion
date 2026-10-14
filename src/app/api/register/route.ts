@@ -36,6 +36,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name and email are required." }, { status: 400 });
     }
 
+    if (/\.(con|vom|cmo|ocm|comm|cim)$/i.test(String(email).trim())) {
+      return NextResponse.json(
+        { error: "That email address looks like it has a typo at the end (for example \".con\" instead of \".com\"). Please check it." },
+        { status: 400 }
+      );
+    }
+
     if (acceptedPolicy !== true) {
       return NextResponse.json(
         { error: "Please accept the Payment, Cancellation & Transfer Policy to register." },
