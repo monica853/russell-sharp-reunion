@@ -132,6 +132,19 @@ export default function MyInvoiceClient() {
     setPaying(false);
   }
 
+  async function refreshPayments() {
+    setMsg("Checking for payments…");
+    const { ok, json } = await post("/api/checkout/confirm", {});
+    await loadInvoice();
+    setMsg(
+      ok
+        ? json.recorded > 0
+          ? `Found and recorded ${json.recorded} payment${json.recorded > 1 ? "s" : ""}.`
+          : "No new payments found."
+        : json.error || "Could not check for payments."
+    );
+  }
+
   async function changeShirt(rowNum: number, size: string) {
     setSavingShirt(rowNum);
     setMsg("");
@@ -331,12 +344,28 @@ export default function MyInvoiceClient() {
                   </label>
                 </div>
               )}
+              <div className="flex flex-wrap gap-2 text-xs">
+                {invoice.amountPaid === 0 && invoice.balance > 25 && (
+                  <button type="button" onClick={() => setPayAmount("25")} className="btn-outline-clean !py-1 !px-3">
+                    $25 deposit
+                  </button>
+                )}
+                <button type="button" onClick={() => setPayAmount(invoice.balance.toFixed(2))} className="btn-outline-clean !py-1 !px-3">
+                  Pay full balance (${invoice.balance.toFixed(2)})
+                </button>
+              </div>
               <button onClick={handlePay} disabled={paying || (!invoice.policyAccepted && !policyChecked)} className="btn-primary w-full disabled:opacity-60">
                 {paying ? "Opening secure checkout…" : "Pay Now"}
               </button>
               {payError && <p className="text-[var(--oxblood)] text-sm">{payError}</p>}
             </div>
           )}
+          <p className="text-center text-xs text-[var(--pearl-dim)]">
+            Paid but don&apos;t see it above?{" "}
+            <button onClick={refreshPayments} className="underline text-[var(--gold-bright)]">
+              Refresh payments
+            </button>
+          </p>
 
           {/* Add attendee */}
           <div className="card-plaque p-6 space-y-4">

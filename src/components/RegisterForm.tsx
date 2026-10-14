@@ -266,7 +266,13 @@ export default function RegisterForm() {
             <div key={i} className="card-plaque p-4 grid sm:grid-cols-5 gap-3 items-end">
               <div>
                 <label className={labelClass}>Name</label>
-                <input className={inputClass} value={a.name} onChange={(e) => update(i, "name", e.target.value)} />
+                <input
+                  className={inputClass}
+                  required={i > 0}
+                  placeholder={i === 0 ? "You (uses your name above)" : ""}
+                  value={a.name}
+                  onChange={(e) => update(i, "name", e.target.value)}
+                />
               </div>
               <div>
                 <label className={labelClass}>Relationship to you</label>
@@ -279,7 +285,7 @@ export default function RegisterForm() {
               </div>
               <div>
                 <label className={labelClass}>Age group</label>
-                <select className={inputClass} value={a.ageGroup} onChange={(e) => update(i, "ageGroup", e.target.value)}>
+                <select required className={inputClass} value={a.ageGroup} onChange={(e) => update(i, "ageGroup", e.target.value)}>
                   <option value="">Select</option>
                   {AGE_GROUPS.map((g) => (
                     <option key={g}>{g}</option>

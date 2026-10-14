@@ -25,7 +25,13 @@ export async function squareFetch<T = any>(path: string, init?: RequestInit): Pr
     },
   });
   const json = await res.json();
-  if (!res.ok) throw new Error("Square API error: " + JSON.stringify(json.errors ?? json));
+  if (!res.ok) {
+    const errs: { code?: string; field?: string; detail?: string }[] = json.errors ?? [];
+    const e = new Error("Square API error: " + JSON.stringify(json.errors ?? json)) as Error & { hint?: string };
+    // Safe-to-show summary (error codes and field names only — never keys).
+    e.hint = errs.map((x) => [x.code, x.field].filter(Boolean).join(" on ")).filter(Boolean).join("; ");
+    throw e;
+  }
   return json as T;
 }
 

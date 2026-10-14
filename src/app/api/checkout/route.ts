@@ -66,6 +66,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: data.payment_link?.url });
   } catch (err) {
     console.error("Checkout error:", err);
-    return NextResponse.json({ error: "Could not start payment. Please try again." }, { status: 500 });
+    const msg = err instanceof Error ? err.message : "";
+    const hint = (err as { hint?: string })?.hint;
+    // Show the family/organizer a clue about WHAT is wrong without exposing secrets.
+    const clue = msg.startsWith("Missing SQUARE_")
+      ? ` (setup problem: ${msg.replace(" env var.", "").replace("Missing ", "")} is not set on the site)`
+      : hint
+        ? ` (Square said: ${hint})`
+        : "";
+    return NextResponse.json({ error: "Could not start payment." + clue + " Please try again." }, { status: 500 });
   }
 }

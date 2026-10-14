@@ -51,7 +51,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const list: Attendee[] = Array.isArray(attendees) && attendees.length > 0 ? attendees : [{}];
+    // Drop completely empty extra rows, then make sure everyone counted has a name and an age group
+    // (the age group sets the fee — a blank one would silently charge $0).
+    const rawList: Attendee[] = Array.isArray(attendees) ? attendees : [];
+    const list: Attendee[] = rawList
+      .filter((a, i) => i === 0 || String(a.name ?? "").trim() || String(a.ageGroup ?? "").trim())
+      .map((a, i) => ({ ...a, name: String(a.name ?? "").trim() || (i === 0 ? String(primaryName).trim() : "") }));
+    if (list.length === 0) list.push({ name: String(primaryName).trim() });
+    const incomplete = list.find((a) => !a.name || !(String(a.ageGroup ?? "") in RATE_MAP));
+    if (incomplete) {
+      return NextResponse.json(
+        { error: "Please choose an age group for every attendee (including yourself) and enter each attendee's name." },
+        { status: 400 }
+      );
+    }
     const total = list.reduce((sum, a) => sum + (RATE_MAP[a.ageGroup || ""] ?? 0), 0);
     const password = generatePassword();
     const cleanEmail = String(email).trim().toLowerCase();
